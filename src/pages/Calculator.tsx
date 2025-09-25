@@ -39,9 +39,9 @@ export const Calculator = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <Clock className="h-12 w-12 mx-auto mb-4 text-primary animate-pulse-glow" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Sleep Calculator</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Calculateur de sommeil</h1>
           <p className="text-muted-foreground text-sm">
-            Find your optimal sleep schedule based on 90-minute cycles
+            Trouvez votre horaire optimal basé sur des cycles de 90 minutes
           </p>
         </div>
 
@@ -49,7 +49,7 @@ export const Calculator = () => {
         <Card className="p-6 border-primary/20 bg-card/50">
           <div className="flex items-center justify-between mb-4">
             <Label htmlFor="mode-toggle" className="text-sm font-medium">
-              I want to {mode === 'wake' ? 'wake up' : 'go to bed'} at
+              Je veux {mode === 'wake' ? 'me réveiller' : 'me coucher'} à
             </Label>
             <Switch
               id="mode-toggle"
@@ -76,7 +76,7 @@ export const Calculator = () => {
           <div className="space-y-3">
             <Label className="text-sm font-medium flex items-center">
               <Calendar className="h-4 w-4 mr-2" />
-              Time to fall asleep: {onsetMinutes[0]} minutes
+              Temps d'endormissement : {onsetMinutes[0]} minutes
             </Label>
             <Slider
               value={onsetMinutes}
@@ -97,7 +97,7 @@ export const Calculator = () => {
             variant="pill" 
             className="w-full mt-6"
           >
-            Calculate Sleep Times
+            Calculer les heures
           </Button>
         </Card>
 
@@ -105,7 +105,7 @@ export const Calculator = () => {
         {results.length > 0 && (
           <div className="space-y-3">
             <h2 className="text-lg font-semibold text-foreground">
-              {mode === 'wake' ? 'Optimal Bedtimes' : 'Optimal Wake Times'}
+              {mode === 'wake' ? 'Heures de coucher optimales' : 'Heures de réveil optimales'}
             </h2>
             {results.map((result, index) => (
               <Card 
@@ -124,7 +124,7 @@ export const Calculator = () => {
                     {result.isRecommended && (
                       <Badge variant="secondary" className="bg-primary text-primary-foreground">
                         <Star className="h-3 w-3 mr-1" />
-                        Recommended
+                        Recommandé
                       </Badge>
                     )}
                   </div>
@@ -133,19 +133,19 @@ export const Calculator = () => {
                     size="sm"
                     onClick={() => handleScheduleReminder(result)}
                   >
-                    Set Reminder
+                    Programmer
                   </Button>
                 </div>
                 
                 <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
                   <span>{result.cycles} cycles</span>
-                  <span>{result.totalSleep} sleep</span>
+                  <span>{result.totalSleep} de sommeil</span>
                 </div>
               </Card>
             ))}
             
             <div className="text-xs text-muted-foreground text-center mt-4">
-              💡 The highlighted time aligns perfectly with your natural sleep cycles
+              💡 L'heure mise en évidence s'aligne parfaitement avec vos cycles naturels
             </div>
           </div>
         )}

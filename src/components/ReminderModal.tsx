@@ -21,9 +21,9 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
   const { toast } = useToast();
 
   const leadOptions = [
-    { value: 30, label: '30 minutes before', recommended: true },
-    { value: 45, label: '45 minutes before', recommended: false },
-    { value: 60, label: '1 hour before', recommended: false },
+    { value: 30, label: '30 minutes avant', recommended: true },
+    { value: 45, label: '45 minutes avant', recommended: false },
+    { value: 60, label: '1 heure avant', recommended: false },
   ];
 
   const handleScheduleReminder = async () => {
@@ -40,7 +40,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
       // Show success toast
       toast({
         title: "Rappel programmé ✅",
-        description: `You'll be reminded ${selectedLead} minutes before ${sleepTime}`,
+        description: `Vous serez notifié(e) ${selectedLead} minutes avant ${sleepTime}`,
       });
 
       // TODO: Call webhook for external scheduling (Make/Integromat)
@@ -49,8 +49,8 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to schedule reminder. Please try again.",
+        title: "Erreur",
+        description: "Échec de la programmation du rappel. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
@@ -81,7 +81,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
         <DialogHeader>
           <DialogTitle className="flex items-center text-foreground">
             <Bell className="h-5 w-5 mr-2 text-primary" />
-            Set Sleep Reminder
+            Programmer un rappel
           </DialogTitle>
         </DialogHeader>
 
@@ -90,7 +90,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
           <Card className="p-4 bg-primary/5 border-primary/20">
             <div className="text-center">
               <div className="text-sm text-muted-foreground mb-1">
-                {mode === 'wake' ? 'Bedtime' : 'Wake time'}
+                {mode === 'wake' ? 'Heure de coucher' : 'Heure de réveil'}
               </div>
               <div className="text-2xl font-mono font-bold text-primary">{sleepTime}</div>
             </div>
@@ -98,7 +98,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
 
           {/* Lead Time Options */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium text-foreground">Remind me:</Label>
+            <Label className="text-sm font-medium text-foreground">Me rappeler :</Label>
             {leadOptions.map((option) => (
               <Card 
                 key={option.value}
@@ -119,7 +119,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
                   <div className="flex items-center space-x-2">
                     {option.recommended && (
                       <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
-                        Recommended
+                        Recommandé
                       </Badge>
                     )}
                     {selectedLead === option.value && (
@@ -134,7 +134,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
           {/* Reminder Preview */}
           <Card className="p-4 bg-muted/20 border-primary/20">
             <div className="text-center">
-              <div className="text-xs text-muted-foreground mb-1">Reminder at</div>
+              <div className="text-xs text-muted-foreground mb-1">Rappel à</div>
               <div className="text-lg font-mono font-semibold text-primary">{reminderTime}</div>
             </div>
           </Card>
@@ -147,7 +147,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
               className="flex-1"
               disabled={isScheduling}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               variant="pill"
@@ -155,7 +155,7 @@ export const ReminderModal = ({ isOpen, onClose, sleepTime, mode }: ReminderModa
               className="flex-1"
               disabled={isScheduling}
             >
-              {isScheduling ? 'Scheduling...' : 'Schedule Reminder'}
+              {isScheduling ? 'Programmation...' : 'Programmer'}
             </Button>
           </div>
         </div>

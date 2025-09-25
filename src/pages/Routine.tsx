@@ -96,7 +96,7 @@ export const Routine = () => {
     // Show success message
     toast({
       title: "Bravo — routine terminée 🎉",
-      description: "Your bedtime routine is complete! Sweet dreams.",
+      description: "Votre routine du soir est terminée ! Doux rêves.",
     });
 
     // Navigate back to home after a brief delay
@@ -135,10 +135,10 @@ export const Routine = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <h1 className="text-lg font-semibold text-foreground">Bedtime Routine</h1>
+        <h1 className="text-lg font-semibold text-foreground">Routine du soir</h1>
         <Button variant="ghost" onClick={stopRoutine} className="text-destructive">
           <Square className="h-4 w-4 mr-2" />
-          Stop
+          Arrêter
         </Button>
       </div>
 

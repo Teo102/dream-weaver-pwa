@@ -104,9 +104,9 @@ export const Journal = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <BookOpen className="h-12 w-12 mx-auto mb-4 text-primary animate-pulse-glow" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Sleep Journal</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Journal de sommeil</h1>
           <p className="text-muted-foreground text-sm">
-            Track your sleep patterns and quality
+            Suivez vos habitudes et la qualité de votre sommeil
           </p>
         </div>
 

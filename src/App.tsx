@@ -9,6 +9,8 @@ import { Calculator } from "./pages/Calculator";
 import { Routine } from "./pages/Routine";
 import { Journal } from "./pages/Journal";
 import { Achievements } from "./pages/Achievements";
+import { Onboarding } from "./pages/Onboarding";
+import { SleepEducation } from "./pages/SleepEducation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,11 +24,13 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/routine" element={<Routine />} />
             <Route path="/journal" element={<Journal />} />
             <Route path="/achievements" element={<Achievements />} />
-            <Route path="/settings" element={<div className="p-6 text-center text-muted-foreground">Settings coming soon</div>} />
+            <Route path="/sleep-education" element={<SleepEducation />} />
+            <Route path="/settings" element={<div className="p-6 text-center text-muted-foreground">Réglages à venir</div>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
