@@ -75,8 +75,6 @@ export const loadRoutineTemplates = (): RoutineTemplate[] => {
     }
   } catch (error) {
     console.error('Impossible de lire les routines enregistrées', error);
-    localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
-    return defaultRoutineTemplates;
   }
 
   localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
