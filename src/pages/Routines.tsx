@@ -70,12 +70,12 @@ export const Routines = () => {
     if (storedActive) {
       const remaining = computeRemaining(storedActive);
       if (remaining <= 0) {
-        // Routine finished while away
+        // Routine finished while away — normalize state and show completion
         saveActiveRoutine(null);
         setActiveRoutine({ ...storedActive, paused: true, endAt: undefined, remainingSec: 0 });
         setRemainingSec(0);
         setShowCompletionDialog(true);
-        notifyActiveRoutineChange(true);
+        notifyActiveRoutineChange(false);
         return;
       }
       setActiveRoutine(storedActive);
@@ -94,7 +94,7 @@ export const Routines = () => {
     setShowStartModal(true);
   };
 
-  // startRoutine accepts durationSec (optional) to support templates with durations
+  // startRoutine accepts an optional durationSec (in seconds)
   const startRoutine = useCallback((template: RoutineTemplate, durationSec?: number) => {
     const duration = durationSec ?? template.durations?.[0] ?? ROUTINE_DURATION;
     const endAt = Date.now() + duration * 1000;
@@ -128,7 +128,7 @@ export const Routines = () => {
     setActiveRoutine(updated);
     setRemainingSec(currentRemaining);
     saveActiveRoutine(updated);
-    // keep active notification (still an active routine, but paused)
+    // still considered an active routine (paused)
     notifyActiveRoutineChange(true);
   };
 
@@ -177,7 +177,8 @@ export const Routines = () => {
     setActiveRoutine(updated);
     saveActiveRoutine(null);
     setShowCompletionDialog(true);
-    notifyActiveRoutineChange(true);
+    // no active routine saved now
+    notifyActiveRoutineChange(false);
   }, [activeRoutine]);
 
   useEffect(() => {
@@ -211,7 +212,7 @@ export const Routines = () => {
     }
     saveActiveRoutine(null);
     setShowCompletionDialog(true);
-    notifyActiveRoutineChange(true);
+    notifyActiveRoutineChange(false);
   };
 
   const recordCompletion = useCallback(() => {
@@ -304,7 +305,6 @@ export const Routines = () => {
         open={showStartModal}
         onOpenChange={setShowStartModal}
         template={selectedTemplate ?? undefined}
-        // RoutineModal must call onConfirm(durationSec)
         onConfirm={(duration) => {
           if (selectedTemplate) {
             startRoutine(selectedTemplate, duration);

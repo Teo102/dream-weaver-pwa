@@ -5,10 +5,10 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogDescription,
 } from '@/components/ui/alert-dialog';
 import { RoutineTemplate } from '@/utils/routinesStorage';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -22,6 +22,7 @@ interface RoutineModalProps {
 }
 
 export const RoutineModal = ({ open, onOpenChange, template, onConfirm }: RoutineModalProps) => {
+  // selectedDuration is undefined when no option selected (helps detect disabled state)
   const [selectedDuration, setSelectedDuration] = useState<number | undefined>(undefined);
 
   useEffect(() => {
@@ -40,6 +41,9 @@ export const RoutineModal = ({ open, onOpenChange, template, onConfirm }: Routin
   }, [template]);
 
   const hasDurationOptions = durationOptions.length > 0;
+  // disable confirm when:
+  // - no template
+  // - OR there are duration options but none selected
   const confirmDisabled = !template || (hasDurationOptions && selectedDuration === undefined);
 
   return (

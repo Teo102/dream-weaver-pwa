@@ -1,4 +1,5 @@
 // src/components/routines/RoutineCard.tsx
+import { useMemo } from 'react';
 import { RoutineTemplate } from '@/utils/routinesStorage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,13 +11,31 @@ interface RoutineCardProps {
 }
 
 export const RoutineCard = ({ template, onStart }: RoutineCardProps) => {
-  const durationMinutes = (template.durations ?? [600]).map((v) => Math.round(v / 60));
-  const durationLabel =
-    durationMinutes.length > 1
-      ? new Intl.ListFormat('fr-FR', { style: 'long', type: 'disjunction' }).format(
-          durationMinutes.map((m) => `${m} min`)
-        )
-      : `${durationMinutes[0]} min`;
+  const durationLabel = useMemo(() => {
+    const durations = template.durations ?? [600];
+    const parts = durations.map((value) => `${Math.round(value / 60)} min`);
+
+    // Try Intl.ListFormat when available for nicer localization
+    try {
+      // guard for environments without ListFormat support
+      const ListFormat = (Intl as any).ListFormat;
+      if (typeof ListFormat === 'function') {
+        const formatter = new ListFormat('fr-FR', { style: 'long', type: 'disjunction' });
+        return formatter.format(parts);
+      }
+    } catch (e) {
+      // fallthrough to manual formatting
+      // eslint-disable-next-line no-console
+      console.warn('Intl.ListFormat unavailable or failed — fallback formatting used.', e);
+    }
+
+    // Fallback formatting: "10 min", "10 ou 15 min", "10, 15 ou 20 min"
+    if (parts.length <= 2) {
+      return parts.join(' ou ');
+    }
+    const last = parts[parts.length - 1];
+    return `${parts.slice(0, -1).join(', ')} ou ${last}`;
+  }, [template.durations]);
 
   return (
     <Card className="flex flex-col h-full border border-primary/20 bg-card/60 shadow-none">

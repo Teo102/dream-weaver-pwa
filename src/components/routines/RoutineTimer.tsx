@@ -126,86 +126,91 @@ export const RoutineTimer = ({
   ]);
 
   // Compute scaled steps, cumulative start/end, active step and progress
-  const { states: stepStates, activeIndex, activeStep, activeStepElapsed, activeStepRemaining, progress } =
-    useMemo(() => {
-      const steps = (template.steps ?? []).map((s: any) => ({ ...s }));
-      const result = {
-        states: [] as Array<any>,
-        activeIndex: -1,
-        activeStep: null as any | null,
-        activeStepElapsed: 0,
-        activeStepRemaining: 0,
-        progress: 0,
-      };
+  const {
+    states: stepStates,
+    activeIndex,
+    activeStep,
+    activeStepElapsed,
+    activeStepRemaining,
+    progress,
+  } = useMemo(() => {
+    const steps = (template.steps ?? []).map((s: any) => ({ ...s }));
+    const result = {
+      states: [] as Array<any>,
+      activeIndex: -1,
+      activeStep: null as any | null,
+      activeStepElapsed: 0,
+      activeStepRemaining: 0,
+      progress: 0,
+    };
 
-      const totalTarget = routine.durationSec && routine.durationSec > 0 ? routine.durationSec : 600;
-      if (!steps.length) {
-        result.progress =
-          routine.durationSec && routine.durationSec > 0
-            ? (Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec)) / routine.durationSec) *
-              100
-            : 0;
-        return result;
-      }
-
-      const baseTotal = steps.reduce((acc, s) => acc + (s.durationSec ?? 0), 0);
-      const stepsCount = steps.length;
-      const minPerStep = 30; // seconds
-      const minimumTotal = minPerStep * stepsCount;
-      const adjustablePool = Math.max(totalTarget - minimumTotal, 0);
-
-      let allocatedPool = 0;
-      const scaled = steps.map((step, idx) => {
-        const ratio = baseTotal ? ((step.durationSec ?? 0) / baseTotal) : 1 / stepsCount;
-        let adjustableShare = Math.round(adjustablePool * ratio);
-        if (idx === stepsCount - 1) {
-          adjustableShare = adjustablePool - allocatedPool;
-        } else if (allocatedPool + adjustableShare > adjustablePool) {
-          adjustableShare = Math.max(0, adjustablePool - allocatedPool);
-        }
-        allocatedPool += adjustableShare;
-        const scaledDurationSec = Math.max(minPerStep, minPerStep + adjustableShare);
-        return { ...step, scaledDurationSec };
-      });
-
-      // build cumulative states
-      let cumulative = 0;
-      const states = scaled.map((s) => {
-        const start = cumulative;
-        const end = start + (s.scaledDurationSec ?? minPerStep);
-        cumulative = end;
-        return { ...s, start, end };
-      });
-
-      // determine active index
-      let idxActive = -1;
-      for (let i = 0; i < states.length; i++) {
-        const st = states[i];
-        if (elapsedSec >= st.start && elapsedSec < st.end) {
-          idxActive = i;
-          break;
-        }
-      }
-      if (idxActive === -1 && states.length) {
-        idxActive = states.length - 1;
-      }
-
-      const aStep = idxActive >= 0 ? states[idxActive] : null;
-      const aElapsed = aStep ? Math.max(0, elapsedSec - aStep.start) : 0;
-      const aRemaining = aStep ? Math.max(0, aStep.end - elapsedSec) : 0;
-
-      result.states = states;
-      result.activeIndex = idxActive;
-      result.activeStep = aStep;
-      result.activeStepElapsed = aElapsed;
-      result.activeStepRemaining = aRemaining;
+    const totalTarget = routine.durationSec && routine.durationSec > 0 ? routine.durationSec : 600;
+    if (!steps.length) {
       result.progress =
         routine.durationSec && routine.durationSec > 0
           ? (Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec)) / routine.durationSec) * 100
           : 0;
-
       return result;
-    }, [template.steps, routine.durationSec, remainingSec, elapsedSec]);
+    }
+
+    const baseTotal = steps.reduce((acc, s) => acc + (s.durationSec ?? 0), 0);
+    const stepsCount = steps.length;
+    const minPerStep = 30; // seconds
+    const minimumTotal = minPerStep * stepsCount;
+    const adjustablePool = Math.max(totalTarget - minimumTotal, 0);
+
+    let allocatedPool = 0;
+    const scaled = steps.map((step, idx) => {
+      const ratio = baseTotal ? ((step.durationSec ?? 0) / baseTotal) : 1 / stepsCount;
+      let adjustableShare = Math.round(adjustablePool * ratio);
+      if (idx === stepsCount - 1) {
+        adjustableShare = adjustablePool - allocatedPool;
+      } else if (allocatedPool + adjustableShare > adjustablePool) {
+        adjustableShare = Math.max(0, adjustablePool - allocatedPool);
+      }
+      allocatedPool += adjustableShare;
+      const scaledDurationSec = Math.max(minPerStep, minPerStep + adjustableShare);
+      return { ...step, scaledDurationSec };
+    });
+
+    // build cumulative states
+    let cumulative = 0;
+    const states = scaled.map((s) => {
+      const start = cumulative;
+      const end = start + (s.scaledDurationSec ?? minPerStep);
+      cumulative = end;
+      return { ...s, start, end };
+    });
+
+    // determine active index
+    let idxActive = -1;
+    for (let i = 0; i < states.length; i++) {
+      const st = states[i];
+      if (elapsedSec >= st.start && elapsedSec < st.end) {
+        idxActive = i;
+        break;
+      }
+    }
+    if (idxActive === -1 && states.length) {
+      idxActive = states.length - 1;
+    }
+
+    const aStep = idxActive >= 0 ? states[idxActive] : null;
+    const aElapsed = aStep ? Math.max(0, elapsedSec - aStep.start) : 0;
+    const aRemaining = aStep ? Math.max(0, aStep.end - elapsedSec) : 0;
+
+    result.states = states;
+    result.activeIndex = idxActive;
+    result.activeStep = aStep;
+    result.activeStepElapsed = aElapsed;
+    result.activeStepRemaining = aRemaining;
+    result.progress =
+      routine.durationSec && routine.durationSec > 0
+        ? (Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec)) / routine.durationSec) * 100
+        : 0;
+
+    return result;
+  }, [template.steps, routine.durationSec, remainingSec, elapsedSec]);
 
   return (
     <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm px-4 py-6 overflow-y-auto">
@@ -262,7 +267,6 @@ export const RoutineTimer = ({
             }}
             className="w-full"
           >
-            {/* Déroulé (steps) */}
             <AccordionItem value="steps" className="border-none">
               <AccordionTrigger className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium">
                 <span className="inline-flex items-center gap-2">
@@ -284,11 +288,7 @@ export const RoutineTimer = ({
                           key={step.id ?? index}
                           className={
                             'rounded-2xl border px-4 py-3 transition-colors ' +
-                            (isActive
-                              ? 'border-primary bg-primary/10'
-                              : isCompleted
-                              ? 'border-border/70 bg-background'
-                              : 'border-border/60 bg-background/60')
+                            (isActive ? 'border-primary bg-primary/10' : isCompleted ? 'border-border/70 bg-background' : 'border-border/60 bg-background/60')
                           }
                         >
                           <div className="flex items-start justify-between gap-3">

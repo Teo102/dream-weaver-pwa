@@ -1,3 +1,4 @@
+// src/pages/ComprendreSommeil.tsx
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -35,12 +36,12 @@ const articles: Article[] = [
     icon: Bed,
     paragraphs: [
       <>
-        Le sommeil est un besoin biologique fondamental. <strong>Pendant la nuit</strong>, ton corps répare les tissus, ton cerveau
-        trie les informations de la journée et tes émotions se régulent — tout cela activement, pas simplement «être éteint».
+        Le sommeil est un besoin biologique fondamental. <strong>Pendant la nuit</strong>, ton corps répare les tissus, ton cerveau trie
+        les informations de la journée et tes émotions se régulent — tout cela activement, pas simplement «être éteint».
       </>,
       <>
-        En pratique : une bonne nuit aide la mémoire, la récupération et l’humeur. <em>Prendre le sommeil au sérieux</em> signifie organiser
-        des petites habitudes quotidiennes (heure régulière, baisse des stimulations avant de dormir).
+        En pratique : une bonne nuit aide la mémoire, la récupération et l’humeur. <em>Prendre le sommeil au sérieux</em> signifie
+        organiser de petites habitudes quotidiennes : heure régulière, baisse des stimulations et environnement calme.
       </>,
     ],
     ctas: [
@@ -174,6 +175,7 @@ export const ComprendreSommeil = () => {
                 Les bases simples et pratiques pour mieux dormir — cycles, routines et conseils applicables ce soir.
               </p>
             </div>
+
             {/* AUCUNE IMAGE / AUCUNE ILLUSTRATION : on ne met rien ici intentionnellement */}
             <div className="hidden md:block w-36" aria-hidden="true" />
           </div>
@@ -266,3 +268,4 @@ export const ComprendreSommeil = () => {
     </div>
   );
 };
+

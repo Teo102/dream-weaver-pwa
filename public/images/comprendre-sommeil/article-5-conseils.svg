@@ -1,1 +1,104 @@
-<div className="hidden md:block h-32 w-full max-w-xs rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5" />
+// src/components/HeroIllustration.tsx
+import React from 'react';
+
+export const HeroIllustration: React.FC = () => {
+  return (
+    <div className="hidden md:block h-32 w-full max-w-xs rounded-3xl overflow-hidden">
+      <svg
+        viewBox="0 0 640 360"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-full w-full"
+        role="img"
+        aria-label="Illustration apaisante du sommeil"
+      >
+        <defs>
+          <radialGradient
+            id="bg"
+            cx="0"
+            cy="0"
+            r="1"
+            gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(320 180) scale(360)"
+          >
+            <stop offset="0" stopColor="#221E3F" />
+            <stop offset="1" stopColor="#0E0A1C" />
+          </radialGradient>
+
+          <linearGradient
+            id="glow"
+            x1="220"
+            y1="120"
+            x2="480"
+            y2="260"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#7C62FF" />
+            <stop offset="1" stopColor="#B99CFF" />
+          </linearGradient>
+
+          <radialGradient
+            id="halo"
+            cx="0"
+            cy="0"
+            r="1"
+            gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(170 120) scale(180)"
+          >
+            <stop offset="0" stopColor="#7C62FF" stopOpacity={0.6} />
+            <stop offset="1" stopColor="#7C62FF" stopOpacity={0} />
+          </radialGradient>
+        </defs>
+
+        <rect width="640" height="360" rx="40" fill="url(#bg)" />
+        <circle cx="180" cy="132" r="120" fill="url(#halo)" />
+
+        <text
+          x="140"
+          y="170"
+          fontSize="54"
+          fontWeight={600}
+          fontFamily={`Inter, "SF Pro Display", sans-serif`}
+          fill="#F3F0FF"
+        >
+          Mieux
+        </text>
+
+        <text
+          x="140"
+          y="226"
+          fontSize="54"
+          fontWeight={600}
+          fontFamily={`Inter, "SF Pro Display", sans-serif`}
+          fill="#F3F0FF"
+        >
+          s’endormir
+        </text>
+
+        <text
+          x="140"
+          y="270"
+          fontSize="28"
+          fontWeight={500}
+          fontFamily={`Inter, "SF Pro Display", sans-serif`}
+          fill="#D9D0FF"
+        >
+          Simple & efficace
+        </text>
+
+        <g opacity={0.7} stroke="#8F79FF" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M408 106C438 126 456 154 456 186" fill="none" />
+          <path d="M474 150C502 176 514 206 514 246" fill="none" />
+        </g>
+
+        <g opacity={0.7} fill="url(#glow)">
+          <circle cx="446" cy="108" r="18" />
+          <circle cx="512" cy="160" r="14" />
+          <circle cx="552" cy="220" r="12" />
+        </g>
+      </svg>
+    </div>
+  );
+};
+
+export default HeroIllustration;

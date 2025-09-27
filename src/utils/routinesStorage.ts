@@ -25,7 +25,7 @@ export interface RoutineTemplate {
   title: string;
   previewText: string;
   scriptFileName: string;
-  // optional on type level to stay backward compatible with older persisted data
+  // optional at type level to keep compatibility with older persisted data
   durations?: number[]; // in seconds
   steps?: RoutineStep[];
 }
@@ -342,20 +342,22 @@ export const loadRoutineTemplates = (): RoutineTemplate[] => {
   try {
     const stored = storage.getItem(ROUTINE_TEMPLATES_KEY);
     if (stored) {
-      const parsed = JSON.parse(stored) as RoutineTemplate[];
-      if (Array.isArray(parsed) && parsed.length && parsed.every((item) => isValidTemplate(item))) {
-        return parsed;
+      const parsed = JSON.parse(stored) as unknown;
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed.every((item) => isValidTemplate(item))) {
+        return parsed as RoutineTemplate[];
       }
     }
   } catch (error) {
     console.error('Impossible de lire les routines enregistrées', error);
   }
 
+  // Ensure defaults persist (best-effort)
   try {
     storage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
   } catch (e) {
     console.error('Impossible de sauvegarder les templates par défaut', e);
   }
+
   return defaultRoutineTemplates;
 };
 
