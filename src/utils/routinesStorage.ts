@@ -14,9 +14,14 @@ export interface RoutineTemplate {
   title: string;
   previewText: string;
   scriptFileName: string;
+ codex/add-sleep-reminder-features-r1wbd3
+  durations: number[]; // in seconds
+  steps: RoutineStep[];
+
   // optional on type level to stay backward compatible with older persisted data
   durations?: number[]; // in seconds
   steps?: RoutineStep[];
+= main
 }
 
 export interface ActiveRoutineStorage {
@@ -297,6 +302,16 @@ export const defaultRoutineTemplates: RoutineTemplate[] = [
   },
 ];
 
+ codex/add-sleep-reminder-features-r1wbd3
+const isValidTemplate = (template: RoutineTemplate | (RoutineTemplate & { durations?: number[]; steps?: RoutineStep[] })) => {
+  return (
+    typeof template?.id === 'string' &&
+    typeof template?.title === 'string' &&
+    Array.isArray(template?.durations) &&
+    template.durations.length > 0 &&
+    Array.isArray(template?.steps) &&
+    template.steps.length > 0
+
 const isValidTemplate = (
   template: unknown
 ): template is RoutineTemplate & { durations: number[]; steps: RoutineStep[] } => {
@@ -319,6 +334,7 @@ const isValidTemplate = (
         typeof s.description === 'string' &&
         typeof s.durationSec === 'number'
     )
+ main
   );
 };
 
@@ -333,7 +349,12 @@ export const loadRoutineTemplates = (): RoutineTemplate[] => {
     }
   } catch (error) {
     console.error('Impossible de lire les routines enregistrées', error);
+ codex/add-sleep-reminder-features-r1wbd3
+    localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
+    return defaultRoutineTemplates;
+
     // fallthrough to reset to defaults
+ main
   }
 
   localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));

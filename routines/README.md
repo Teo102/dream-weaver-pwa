@@ -1,4 +1,7 @@
+ codex/add-sleep-reminder-features-r1wbd3
+=======
  codex/add-sleep-reminder-features-06n2n4
+ main
 # Page `/routines`
 
 Cette page mobile-first propose six routines de préparation au sommeil avec un minuteur persistant côté navigateur. Tout est géré en local.
@@ -25,7 +28,9 @@ Chaque template expose également un déroulé structuré (étapes avec titre, d
 1. `npm install` (si nécessaire) puis `npm run dev -- --host`.
 2. Ouvrir `http://localhost:5173/routines`, choisir une routine puis sélectionner la durée souhaitée.
 3. Vérifier : démarrage du minuteur, pause/reprise, persistance après rafraîchissement, surbrillance de l’étape active, et enregistrement dans l’historique après “Marquer comme complétée”.
-=======
+ codex/add-sleep-reminder-features-r1wbd3
+
+
 Page /routines
 
 Cette page mobile-first propose six routines de préparation au sommeil avec un minuteur persistant côté navigateur. Tout est géré en local.
@@ -78,4 +83,5 @@ Rafraîchir la page pendant une routine active → vérifier que l’état et le
 Lancer le “Voir le déroulé” → vérifier la mise en surbrillance de l’étape active et les compteurs locaux par étape.
 
 Marquer la routine comme complétée → vérifier que l’entrée apparaît dans l’historique local (localStorage.completedRoutines).
+ main
  main

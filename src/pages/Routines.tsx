@@ -1,4 +1,7 @@
+ codex/add-sleep-reminder-features-r1wbd3
+
 // src/pages/Routines.tsx
+ main
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActiveRoutineStorage,
@@ -18,8 +21,11 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
+ codex/add-sleep-reminder-features-r1wbd3
+
 const ROUTINE_DURATION = 600; // 10 minutes (fallback)
 
+ main
 const computeRemaining = (routine: ActiveRoutineStorage) => {
   if (routine.paused) {
     return Math.max(0, Math.round(routine.remainingSec ?? routine.durationSec));
@@ -40,6 +46,9 @@ export const Routines = () => {
   const [templates, setTemplates] = useState<RoutineTemplate[]>(defaultRoutineTemplates);
   const [selectedTemplate, setSelectedTemplate] = useState<RoutineTemplate | null>(null);
   const [activeRoutine, setActiveRoutine] = useState<ActiveRoutineStorage | null>(null);
+ codex/add-sleep-reminder-features-r1wbd3
+  const [remainingSec, setRemainingSec] = useState<number>(defaultRoutineTemplates[0]?.durations[0] ?? 600);
+
 
   // initial remaining: if templates include durations, use first duration, otherwise fallback
   const initialDuration =
@@ -48,6 +57,7 @@ export const Routines = () => {
     ROUTINE_DURATION;
 
   const [remainingSec, setRemainingSec] = useState<number>(initialDuration);
+ main
   const [completedRoutines, setCompletedRoutines] = useState<CompletedRoutineEntry[]>([]);
   const [showStartModal, setShowStartModal] = useState(false);
   const [showStopDialog, setShowStopDialog] = useState(false);
@@ -93,6 +103,14 @@ export const Routines = () => {
     setShowStartModal(true);
   };
 
+ codex/add-sleep-reminder-features-r1wbd3
+  const startRoutine = useCallback((template: RoutineTemplate, durationSec: number) => {
+    const endAt = Date.now() + durationSec * 1000;
+    const routine: ActiveRoutineStorage = {
+      id: template.id,
+      title: template.title,
+      durationSec,
+
   // startRoutine accepts durationSec (optional) to support templates with durations
   const startRoutine = useCallback((template: RoutineTemplate, durationSec?: number) => {
     const duration = durationSec ?? template.durations?.[0] ?? ROUTINE_DURATION;
@@ -101,6 +119,7 @@ export const Routines = () => {
       id: template.id,
       title: template.title,
       durationSec: duration,
+ main
       endAt,
       paused: false,
       startedAt: Date.now(),
@@ -108,7 +127,11 @@ export const Routines = () => {
 
     saveActiveRoutine(routine);
     setActiveRoutine(routine);
+ codex/add-sleep-reminder-features-r1wbd3
+    setRemainingSec(durationSec);
+
     setRemainingSec(duration);
+ main
     setShowStartModal(false);
     setShowCompletionDialog(false);
     setShowStopDialog(false);
@@ -141,7 +164,10 @@ export const Routines = () => {
     };
     setActiveRoutine(updated);
     saveActiveRoutine(updated);
+ codex/add-sleep-reminder-features-r1wbd3
+
     notifyActiveRoutineChange(true);
+ main
   };
 
   const requestStop = () => {
@@ -152,10 +178,14 @@ export const Routines = () => {
   const abandonRoutine = () => {
     setShowStopDialog(false);
     setActiveRoutine(null);
+ codex/add-sleep-reminder-features-r1wbd3
+    setRemainingSec(selectedTemplate?.durations[0] ?? templates[0]?.durations[0] ?? 600);
+
     // reset remaining to a sensible default (selected template if available, otherwise first template)
     const defaultSec =
       selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION;
     setRemainingSec(defaultSec);
+ main
     saveActiveRoutine(null);
     notifyActiveRoutineChange(false);
   };
@@ -222,9 +252,13 @@ export const Routines = () => {
     setShowCompletionDialog(false);
     setShowStopDialog(false);
     setActiveRoutine(null);
+ codex/add-sleep-reminder-features-r1wbd3
+    setRemainingSec(selectedTemplate?.durations[0] ?? templates[0]?.durations[0] ?? 600);
+
     const defaultSec =
       selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION;
     setRemainingSec(defaultSec);
+ main
     notifyActiveRoutineChange(false);
   }, [activeRoutine, completedRoutines, selectedTemplate, templates]);
 
@@ -232,6 +266,14 @@ export const Routines = () => {
     const templateToRestart = activeTemplate ?? selectedTemplate;
     setShowCompletionDialog(false);
     if (templateToRestart) {
+ codex/add-sleep-reminder-features-r1wbd3
+      startRoutine(templateToRestart, activeRoutine?.durationSec ?? templateToRestart.durations[0]);
+    } else if (selectedTemplate) {
+      startRoutine(selectedTemplate, selectedTemplate.durations[0]);
+    } else {
+      setActiveRoutine(null);
+      setRemainingSec(templates[0]?.durations[0] ?? 600);
+
       // if there was an active routine, preserve its previous duration if present
       const prevDuration = activeRoutine?.durationSec ?? templateToRestart.durations?.[0];
       startRoutine(templateToRestart, prevDuration);
@@ -240,6 +282,7 @@ export const Routines = () => {
     } else {
       setActiveRoutine(null);
       setRemainingSec(ROUTINE_DURATION);
+ main
     }
   };
 
@@ -302,7 +345,10 @@ export const Routines = () => {
         open={showStartModal}
         onOpenChange={setShowStartModal}
         template={selectedTemplate ?? undefined}
+ codex/add-sleep-reminder-features-r1wbd3
+
         // RoutineModal must call onConfirm(durationSec)
+ main
         onConfirm={(duration) => {
           if (selectedTemplate) {
             startRoutine(selectedTemplate, duration);
