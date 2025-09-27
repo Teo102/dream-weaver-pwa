@@ -122,9 +122,9 @@ export const Calculator = () => {
                       {result.time.display}
                     </div>
                     {result.isRecommended && (
-                      <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                        <Star className="h-3 w-3 mr-1" />
-                        Recommandé
+                      <Badge variant="secondary" className="bg-gradient-to-r from-primary to-primary/80 text-white border-0 shadow-sleep-glow">
+                        <Star className="h-3 w-3 mr-1 fill-current" />
+                        ⭐ Optimal
                       </Badge>
                     )}
                   </div>
@@ -138,15 +138,23 @@ export const Calculator = () => {
                 </div>
                 
                 <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
-                  <span>{result.cycles} cycles</span>
-                  <span>{result.totalSleep} de sommeil</span>
+                  <span>🔄 {result.cycles} cycles complets</span>
+                  <span>⏰ {result.totalSleep} de sommeil</span>
                 </div>
+                {result.isRecommended && (
+                  <div className="mt-2 text-xs text-primary font-medium">
+                    💡 Cette heure respecte parfaitement vos cycles naturels
+                  </div>
+                )}
               </Card>
             ))}
             
-            <div className="text-xs text-muted-foreground text-center mt-4">
-              💡 L'heure mise en évidence s'aligne parfaitement avec vos cycles naturels
-            </div>
+            <Card className="p-4 bg-primary/5 border-primary/20 mt-4">
+              <div className="text-xs text-muted-foreground text-center">
+                ⚡ <strong className="text-primary">Astuce :</strong> L'option marquée "Optimal" respecte parfaitement vos cycles de 90 minutes. 
+                Vous vous réveillerez naturellement plus reposé et alerte !
+              </div>
+            </Card>
           </div>
         )}
       </div>

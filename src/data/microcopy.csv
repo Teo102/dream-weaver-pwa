@@ -1,0 +1,109 @@
+key,french
+welcome_title,Bienvenue dans Sleep Reminder
+welcome_subtitle,Optimisez votre sommeil avec la science des cycles
+get_started,Commencer
+calculate_sleep,Calculer mes heures
+sleep_calculator,Calculateur de sommeil
+bedtime_calculator,Calculateur d'heure de coucher
+wake_time_calculator,Calculateur d'heure de réveil
+i_want_to_wake_up_at,Je veux me réveiller à
+i_want_to_sleep_at,Je veux me coucher à
+sleep_onset_time,Temps d'endormissement
+minutes,minutes
+calculate_times,Calculer les heures
+optimal_bedtimes,Heures de coucher optimales
+optimal_wake_times,Heures de réveil optimales
+recommended,Recommandé
+optimal,⭐ Optimal
+schedule,Programmer
+schedule_reminder,Programmer un rappel
+reminder_scheduled,Rappel programmé ✅
+routine_completed,Bravo — routine terminée 🎉
+journal_saved,Journal enregistré ✅
+sleep_cycles,cycles
+hours_of_sleep,de sommeil
+complete_cycles,cycles complets
+tip_optimal_timing,Cette heure respecte parfaitement vos cycles naturels
+start_routine,Démarrer la routine
+pause_routine,Mettre en pause
+resume_routine,Reprendre
+complete_routine,Terminer la routine
+routine_player,Lecteur de routine
+sleep_journal,Journal de sommeil
+bedtime,Heure de coucher
+wake_time,Heure de réveil
+sleep_quality,Qualité du sommeil
+notes,Notes
+save_entry,Enregistrer
+my_achievements,Mes réussites
+current_streak,Série actuelle
+days,jours
+share_streak,Partager ma série
+first_routine,Première routine
+three_day_streak,3 jours d'affilée
+seven_day_streak,7 jours d'affilée
+sleep_education,Comprendre le sommeil
+why_sleep_matters,Pourquoi le sommeil compte
+sleep_cycles_explained,Les cycles de sommeil expliqués
+practical_tips,Conseils pratiques
+read_more,En savoir plus
+back,Retour
+home,Accueil
+calculator,Calculateur
+routine,Routine
+journal,Journal
+achievements,Réussites
+settings,Paramètres
+onboarding_step1_title,Calculez vos heures optimales
+onboarding_step1_desc,Trouvez les meilleurs moments pour vous coucher ou vous réveiller
+onboarding_step2_title,Programmez vos rappels
+onboarding_step2_desc,Recevez des notifications pour respecter vos horaires
+onboarding_step3_title,Suivez une routine
+onboarding_step3_desc,10 minutes de détente pour préparer votre sommeil
+try_now,Essayer maintenant
+skip,Passer
+next,Suivant
+finish,Terminer
+lead_time_30,30 minutes avant
+lead_time_45,45 minutes avant
+lead_time_60,1 heure avant
+close,Fermer
+cancel,Annuler
+confirm,Confirmer
+very_poor,Très mauvaise
+poor,Mauvaise
+average,Moyenne
+good,Bonne
+excellent,Excellente
+last_7_days,7 derniers jours
+no_entries,Aucune entrée
+add_entry,Ajouter une entrée
+today,Aujourd'hui
+yesterday,Hier
+unlock_achievement,Débloquer un succès
+achievement_unlocked,Succès débloqué !
+congratulations,Félicitations
+keep_going,Continuez !
+ready_to_optimize,Prêt(e) à optimiser votre sommeil ?
+use_calculator,Utilisez notre calculateur
+master_sleep,Maîtrisez votre sommeil en 5 minutes
+science_simple_results,Science simple, résultats immédiats
+five_essential_articles,5 articles essentiels
+reading_time,lecture 1-2 min chacun
+read,Lire
+close_article,Fermer
+visualize_90min_cycle,Visualiser un cycle de 90 minutes
+light_sleep,Léger
+deep_sleep,Profond
+very_deep_sleep,Très profond
+rem_sleep,REM
+falling_asleep,Endormissement
+recovery,Récupération
+repair,Réparation
+dreams,Rêves
+optimal_wake_zone,Zone de réveil optimal
+three_tips_tonight,3 conseils à appliquer ce soir
+respect_natural_cycles,Respectez vos cycles naturels
+regular_schedule,Horaires réguliers = sommeil de qualité
+presleep_routine_60min,Routine pré-sommeil de 60 minutes
+calculate_sleep_hours,Calculer mes heures de sommeil
