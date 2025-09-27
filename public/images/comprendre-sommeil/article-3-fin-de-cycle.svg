@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) rotate(90) scale(256)">
+      <stop offset="0.2" stop-color="#221B45" />
+      <stop offset="1" stop-color="#0F0B1F" />
+    </radialGradient>
+    <linearGradient id="arc" x1="80" y1="80" x2="432" y2="432" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C62FF" />
+      <stop offset="1" stop-color="#A78BFF" />
+    </linearGradient>
+    <linearGradient id="inner" x1="220" y1="100" x2="352" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F1FF" />
+      <stop offset="1" stop-color="#D8CEFF" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#bg)" />
+  <path d="M412 256C412 327.349 353.349 386 282 386C210.651 386 152 327.349 152 256" stroke="url(#arc)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M282 126C208.726 126 144 185.065 144 256" stroke="#362B67" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="282" cy="256" r="108" fill="#140F29" />
+  <circle cx="282" cy="256" r="88" fill="url(#inner)" />
+  <text x="282" y="270" text-anchor="middle" font-family="'Inter', 'SF Pro Display', sans-serif" font-weight="600" font-size="72" fill="#301F6E">90</text>
+  <text x="282" y="322" text-anchor="middle" font-family="'Inter', 'SF Pro Display', sans-serif" font-size="32" fill="#4A3A86">min</text>
+  <circle cx="136" cy="176" r="14" fill="#7C62FF" opacity="0.6" />
+  <circle cx="376" cy="104" r="10" fill="#7C62FF" opacity="0.45" />
+  <path d="M384 336L408 356" stroke="#8067FF" stroke-width="8" stroke-linecap="round" opacity="0.4" />
+  <path d="M148 328L124 348" stroke="#8067FF" stroke-width="8" stroke-linecap="round" opacity="0.4" />
+</svg>

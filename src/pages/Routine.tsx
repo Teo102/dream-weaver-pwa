@@ -116,10 +116,10 @@ export const Routine = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="text-center">
           <CheckCircle className="h-16 w-16 mx-auto mb-4 text-primary animate-pulse-glow" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Routine Complete!</h1>
-          <p className="text-muted-foreground mb-6">Well done! Your mind and body are ready for sleep.</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Routine terminée !</h1>
+          <p className="text-muted-foreground mb-6">Bravo ! Votre esprit et votre corps sont prêts pour la nuit.</p>
           <Link to="/">
-            <Button variant="pill">Return Home</Button>
+            <Button variant="pill">Retour à l’accueil</Button>
           </Link>
         </div>
       </div>
@@ -146,9 +146,9 @@ export const Routine = () => {
         {/* Overall Progress */}
         <Card className="p-6 border-primary/20 bg-card/50">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-foreground">Overall Progress</span>
+            <span className="text-sm font-medium text-foreground">Progression totale</span>
             <span className="text-sm text-muted-foreground">
-              {currentStepIndex + 1} of {steps.length}
+              Étape {currentStepIndex + 1} sur {steps.length}
             </span>
           </div>
           <Progress value={overallProgress} className="h-2 mb-2" />
@@ -181,7 +181,7 @@ export const Routine = () => {
                 className="px-8"
               >
                 <Play className="h-5 w-5 mr-2" />
-                {routineStartTime ? 'Resume' : 'Start'}
+                {routineStartTime ? 'Reprendre' : 'Démarrer'}
               </Button>
             ) : (
               <Button 
@@ -199,7 +199,7 @@ export const Routine = () => {
 
         {/* Steps Overview */}
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-foreground">Routine Steps</h3>
+          <h3 className="text-lg font-semibold text-foreground">Étapes de la routine</h3>
           {steps.map((step, index) => (
             <Card 
               key={step.id}

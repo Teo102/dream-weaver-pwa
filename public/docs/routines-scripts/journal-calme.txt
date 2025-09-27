@@ -1,0 +1,9 @@
+Routine "Journal calme" — durée totale 10 minutes
+
+0:00-1:00  Installe-toi avec ton carnet et un stylo confortable, respire profondément.
+1:00-3:00  Écris trois moments de la journée qui t'ont fait du bien ou t'ont appris quelque chose.
+3:00-5:00  Note une préoccupation et ajoute juste en dessous une action simple pour la traiter demain.
+5:00-6:30  Écris une intention douce pour ta soirée ou ton réveil de demain matin.
+6:30-8:00  Termine avec trois phrases de gratitude envers toi-même ou une personne proche.
+8:00-9:00  Relis tranquillement ce que tu viens d'écrire, laisse les mots t'apaiser.
+9:00-10:00  Range ton carnet, souffle une dernière fois profondément et éteins la lumière principale.
