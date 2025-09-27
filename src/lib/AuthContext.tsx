@@ -17,41 +17,30 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-/**
- * AuthProvider
- * - garde l'état user/loading
- * - écoute les changements d'auth (supabase)
- * - fournit signUp / signIn / signOut
- */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
-    // get current session (initial)
-    (async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!mounted) return;
-        const session = data?.session ?? null;
-        if (session?.user) {
-          setUser({ id: session.user.id, email: session.user.email });
-        } else {
-          setUser(null);
-        }
-      } catch (err) {
-        console.error('AuthProvider: getSession error', err);
+    // get current session
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      const session = data.session;
+      if (session?.user) {
+        setUser({ id: session.user.id, email: session.user.email });
+      } else {
         setUser(null);
-      } finally {
-        if (mounted) setLoading(false);
       }
-    })();
+      setLoading(false);
+    }).catch((err) => {
+      console.error('supabase getSession error', err);
+      if (mounted) setLoading(false);
+    });
 
     // subscribe to auth changes
     const { subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!mounted) return;
       if (session?.user) {
         setUser({ id: session.user.id, email: session.user.email });
       } else {
@@ -62,7 +51,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mounted = false;
-      // unsubscribe if available
       try {
         subscription?.unsubscribe();
       } catch (e) {
@@ -73,56 +61,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string) => {
     setLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      const createdUser = data?.user ? { id: data.user.id, email: data.user.email } : null;
-
-      // optionally create profile row (no-op on error)
-      if (createdUser) {
-        // upsert profile row so we have a profile for this user
-        await supabase.from('profiles').upsert({ id: createdUser.id, email: createdUser.email }).catch((e) => {
-          console.error('profiles upsert failed', e);
-        });
-        setUser(createdUser);
-      }
-
-      return { error, user: createdUser };
-    } catch (err) {
-      console.error('signUp error', err);
-      return { error: err, user: null };
-    } finally {
-      setLoading(false);
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    setLoading(false);
+    const u = data?.user ? { id: data.user.id, email: data.user.email } : null;
+    if (u) {
+      // create profile row if you use a profiles table
+      supabase.from('profiles').upsert({ id: u.id, email: u.email }).catch(console.error);
     }
+    return { error, user: u };
   };
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      const signedUser = data?.user ? { id: data.user.id, email: data.user.email } : null;
-      if (signedUser) setUser(signedUser);
-      return { error, user: signedUser };
-    } catch (err) {
-      console.error('signIn error', err);
-      return { error: err, user: null };
-    } finally {
-      setLoading(false);
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    const u = data?.user ? { id: data.user.id, email: data.user.email } : null;
+    return { error, user: u };
   };
 
   const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error('signOut error', err);
-    } finally {
-      setUser(null);
-    }
+    await supabase.auth.signOut();
+    setUser(null);
   };
-
-  // helpful runtime log to debug "white screen" issues
-  // disable in production if you want
-  // console.log('AuthProvider render', { user, loading });
 
   return (
     <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut }}>
@@ -131,16 +91,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-/**
- * useAuth hook
- * - lance une erreur explicite si utilisé en dehors de AuthProvider
- */
-export const useAuth = (): AuthContextValue => {
+export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error(
-      'useAuth must be used inside AuthProvider. Wrap your app with <AuthProvider> in src/main.tsx (or equivalent).'
-    );
-  }
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
   return ctx;
 };
