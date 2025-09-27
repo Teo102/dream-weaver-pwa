@@ -14,8 +14,8 @@ export interface RoutineTemplate {
   title: string;
   previewText: string;
   scriptFileName: string;
-  durations: number[]; // in seconds
-  steps: RoutineStep[];
+  durations?: number[]; // in seconds (optional on type level for backward compatibility)
+  steps?: RoutineStep[];
 }
 
 export interface ActiveRoutineStorage {
@@ -296,14 +296,28 @@ export const defaultRoutineTemplates: RoutineTemplate[] = [
   },
 ];
 
-const isValidTemplate = (template: RoutineTemplate | (RoutineTemplate & { durations?: number[]; steps?: RoutineStep[] })) => {
+const isValidTemplate = (
+  template: unknown
+): template is RoutineTemplate & { durations: number[]; steps: RoutineStep[] } => {
+  if (!template || typeof template !== 'object') return false;
+  const t = template as any;
   return (
-    typeof template?.id === 'string' &&
-    typeof template?.title === 'string' &&
-    Array.isArray(template?.durations) &&
-    template.durations.length > 0 &&
-    Array.isArray(template?.steps) &&
-    template.steps.length > 0
+    typeof t.id === 'string' &&
+    typeof t.title === 'string' &&
+    typeof t.previewText === 'string' &&
+    typeof t.scriptFileName === 'string' &&
+    Array.isArray(t.durations) &&
+    t.durations.length > 0 &&
+    Array.isArray(t.steps) &&
+    t.steps.length > 0 &&
+    t.steps.every(
+      (s: any) =>
+        s &&
+        typeof s.id === 'string' &&
+        typeof s.title === 'string' &&
+        typeof s.description === 'string' &&
+        typeof s.durationSec === 'number'
+    )
   );
 };
 
@@ -318,8 +332,7 @@ export const loadRoutineTemplates = (): RoutineTemplate[] => {
     }
   } catch (error) {
     console.error('Impossible de lire les routines enregistrées', error);
-    localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
-    return defaultRoutineTemplates;
+    // fallthrough to reset to defaults
   }
 
   localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));

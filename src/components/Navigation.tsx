@@ -1,3 +1,4 @@
+// src/components/Navigation.tsx
 import { Home, Calculator, BookOpen, Trophy, Settings, Timer } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
