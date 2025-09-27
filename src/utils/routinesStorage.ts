@@ -1,6 +1,17 @@
+// src/utils/routinesStorage.ts
 export const ROUTINE_TEMPLATES_KEY = 'routinesTemplates';
 export const ACTIVE_ROUTINE_KEY = 'activeRoutine';
 export const COMPLETED_ROUTINES_KEY = 'completedRoutines';
+
+const safeLocalStorage = (): Storage | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage;
+  } catch (err) {
+    console.error('Accès au localStorage impossible', err);
+    return null;
+  }
+};
 
 export interface RoutineStep {
   id: string;
@@ -14,14 +25,9 @@ export interface RoutineTemplate {
   title: string;
   previewText: string;
   scriptFileName: string;
- codex/add-sleep-reminder-features-r1wbd3
-  durations: number[]; // in seconds
-  steps: RoutineStep[];
-
   // optional on type level to stay backward compatible with older persisted data
   durations?: number[]; // in seconds
   steps?: RoutineStep[];
-= main
 }
 
 export interface ActiveRoutineStorage {
@@ -302,16 +308,6 @@ export const defaultRoutineTemplates: RoutineTemplate[] = [
   },
 ];
 
- codex/add-sleep-reminder-features-r1wbd3
-const isValidTemplate = (template: RoutineTemplate | (RoutineTemplate & { durations?: number[]; steps?: RoutineStep[] })) => {
-  return (
-    typeof template?.id === 'string' &&
-    typeof template?.title === 'string' &&
-    Array.isArray(template?.durations) &&
-    template.durations.length > 0 &&
-    Array.isArray(template?.steps) &&
-    template.steps.length > 0
-
 const isValidTemplate = (
   template: unknown
 ): template is RoutineTemplate & { durations: number[]; steps: RoutineStep[] } => {
@@ -334,13 +330,17 @@ const isValidTemplate = (
         typeof s.description === 'string' &&
         typeof s.durationSec === 'number'
     )
- main
   );
 };
 
 export const loadRoutineTemplates = (): RoutineTemplate[] => {
+  const storage = safeLocalStorage();
+  if (!storage) {
+    return defaultRoutineTemplates;
+  }
+
   try {
-    const stored = localStorage.getItem(ROUTINE_TEMPLATES_KEY);
+    const stored = storage.getItem(ROUTINE_TEMPLATES_KEY);
     if (stored) {
       const parsed = JSON.parse(stored) as RoutineTemplate[];
       if (Array.isArray(parsed) && parsed.length && parsed.every((item) => isValidTemplate(item))) {
@@ -349,25 +349,31 @@ export const loadRoutineTemplates = (): RoutineTemplate[] => {
     }
   } catch (error) {
     console.error('Impossible de lire les routines enregistrées', error);
- codex/add-sleep-reminder-features-r1wbd3
-    localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
-    return defaultRoutineTemplates;
-
-    // fallthrough to reset to defaults
- main
   }
 
-  localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
+  try {
+    storage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
+  } catch (e) {
+    console.error('Impossible de sauvegarder les templates par défaut', e);
+  }
   return defaultRoutineTemplates;
 };
 
 export const saveRoutineTemplates = (templates: RoutineTemplate[]) => {
-  localStorage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(templates));
+  const storage = safeLocalStorage();
+  if (!storage) return;
+  try {
+    storage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(templates));
+  } catch (err) {
+    console.error('Impossible de sauvegarder les templates', err);
+  }
 };
 
 export const loadActiveRoutine = (): ActiveRoutineStorage | null => {
+  const storage = safeLocalStorage();
+  if (!storage) return null;
   try {
-    const stored = localStorage.getItem(ACTIVE_ROUTINE_KEY);
+    const stored = storage.getItem(ACTIVE_ROUTINE_KEY);
     if (!stored) return null;
     return JSON.parse(stored) as ActiveRoutineStorage;
   } catch (error) {
@@ -377,16 +383,24 @@ export const loadActiveRoutine = (): ActiveRoutineStorage | null => {
 };
 
 export const saveActiveRoutine = (routine: ActiveRoutineStorage | null) => {
-  if (!routine) {
-    localStorage.removeItem(ACTIVE_ROUTINE_KEY);
-    return;
+  const storage = safeLocalStorage();
+  if (!storage) return;
+  try {
+    if (!routine) {
+      storage.removeItem(ACTIVE_ROUTINE_KEY);
+      return;
+    }
+    storage.setItem(ACTIVE_ROUTINE_KEY, JSON.stringify(routine));
+  } catch (err) {
+    console.error('Impossible de sauvegarder la routine active', err);
   }
-  localStorage.setItem(ACTIVE_ROUTINE_KEY, JSON.stringify(routine));
 };
 
 export const loadCompletedRoutines = (): CompletedRoutineEntry[] => {
+  const storage = safeLocalStorage();
+  if (!storage) return [];
   try {
-    const stored = localStorage.getItem(COMPLETED_ROUTINES_KEY);
+    const stored = storage.getItem(COMPLETED_ROUTINES_KEY);
     if (!stored) return [];
     const parsed = JSON.parse(stored) as CompletedRoutineEntry[];
     if (!Array.isArray(parsed)) return [];
@@ -398,5 +412,11 @@ export const loadCompletedRoutines = (): CompletedRoutineEntry[] => {
 };
 
 export const saveCompletedRoutines = (entries: CompletedRoutineEntry[]) => {
-  localStorage.setItem(COMPLETED_ROUTINES_KEY, JSON.stringify(entries));
+  const storage = safeLocalStorage();
+  if (!storage) return;
+  try {
+    storage.setItem(COMPLETED_ROUTINES_KEY, JSON.stringify(entries));
+  } catch (err) {
+    console.error('Impossible de sauvegarder les routines terminées', err);
+  }
 };

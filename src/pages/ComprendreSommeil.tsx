@@ -22,14 +22,11 @@ const articles = [
     id: 'article-1',
     title: 'Qu’est-ce que le sommeil ? 💤',
     icon: Bed,
- codex/add-sleep-reminder-features-r1wbd3
     image: {
       src: '/images/comprendre-sommeil/article-1-quest-ce-que-le-sommeil.svg',
       alt: 'Icône violette avec un point d’interrogation entouré d’étoiles.',
       name: 'article-1-quest-ce-que-le-sommeil.svg',
     },
-
- main
     paragraphs: [
       "Le sommeil est un besoin biologique essentiel : c’est le moment où ton corps et ton cerveau se réparent, consolident la mémoire et régulent les émotions. On dort en plusieurs phases qui ont chacune un rôle (récupération physique, consolidation mentale, rêves).",
       "Même sans entrer dans la science, garder une routine régulière et un environnement calme aide énormément. Le sommeil n’est pas juste “ne pas être réveillé” — c’est un processus actif qui se construit chaque soir.",
@@ -38,43 +35,33 @@ const articles = [
       { to: '/routines', label: 'Voir les Routines', variant: 'pill' as const },
       { to: '/calculator', label: 'Ouvrir le Calculateur', variant: 'outline' as const },
     ],
-    summary:
-      'Comprendre ça, c’est accepter de traiter le sommeil comme une habitude.',
+    summary: 'Comprendre ça, c’est accepter de traiter le sommeil comme une habitude.',
   },
   {
     id: 'article-2',
     title: 'Les cycles de sommeil et pourquoi ils comptent 🔁',
     icon: Clock,
- codex/add-sleep-reminder-features-r1wbd3
     image: {
       src: '/images/comprendre-sommeil/article-2-cycles.svg',
       alt: 'Représentation fluide des cycles de sommeil sur fond nocturne.',
       name: 'article-2-cycles.svg',
     },
-
- main
-paragraphs: [
+    paragraphs: [
       "Le sommeil fonctionne en cycles (environ 90 minutes) composés de sommeil léger, profond puis REM (où se produisent les rêves). Ces cycles se répètent 4 à 6 fois selon la durée totale de sommeil.",
       "Chaque phase a un rôle : le profond pour la récupération physique, le REM pour la consolidation émotionnelle et mémoire. Respecter la durée et la régularité permet d’optimiser ces phases naturellement.",
     ],
-    ctas: [
-      { to: '/calculator', label: 'Utiliser le Calculateur', variant: 'pill' as const },
-    ],
-    summary:
-      'Utiliser le calculateur pour planifier un réveil en fin de cycle augmente les chances de se lever frais.',
+    ctas: [{ to: '/calculator', label: 'Utiliser le Calculateur', variant: 'pill' as const }],
+    summary: 'Utiliser le calculateur pour planifier un réveil en fin de cycle augmente les chances de se lever frais.',
   },
   {
     id: 'article-3',
     title: 'Pourquoi il vaut mieux se réveiller en fin de cycle ⏰',
     icon: Sparkles,
- codex/add-sleep-reminder-features-r1wbd3
     image: {
       src: '/images/comprendre-sommeil/article-3-fin-de-cycle.svg',
       alt: 'Cadran lumineux mettant en avant 90 minutes de sommeil.',
       name: 'article-3-fin-de-cycle.svg',
     },
-
- main
     paragraphs: [
       "Se réveiller en plein sommeil profond provoque lourdeur, confusion et fatigue (le fameux « grogginess »). Si l’alarme sonne à la fin d’un cycle, on est souvent dans une phase plus légère et le réveil est plus naturel.",
       "C’est pourquoi le calculateur propose des heures de coucher / réveil basées sur ces cycles (en ajoutant un délai d’endormissement si besoin).",
@@ -89,36 +76,29 @@ paragraphs: [
     id: 'article-4',
     title: 'Routines du soir efficaces (templates) 🧘',
     icon: Feather,
- codex/add-sleep-reminder-features-r1wbd3
     image: {
       src: '/images/comprendre-sommeil/article-4-routines.svg',
       alt: 'Trois cartes colorées pour illustrer des routines du soir.',
       name: 'article-4-routines.svg',
     },
-
- main
     paragraphs: [
       'Une routine courte et répétée prépare ton corps : baisse de lumière, déconnexion des écrans, exercices de respiration, petit étirement, journal rapide. Voici 3 templates simples à intégrer :',
       'Respiration relax (10 min) : installation, respiration cohérente, ancrage.',
       'Déconnexion numérique (10–15 min) : ranger les écrans, tamiser la lumière, écrire 3 pensées à laisser.',
       'Étirements doux (10–20 min) : nuque, épaules, dos, jambes, relaxation finale.',
     ],
-    ctas: [
-      { to: '/routines', label: 'Démarrer une Routine', variant: 'pill' as const },
-    ],
+    ctas: [{ to: '/routines', label: 'Démarrer une Routine', variant: 'pill' as const }],
     summary: 'Les routines te rendent plus constant — lance-en une dès ce soir.',
   },
   {
     id: 'article-5',
     title: '10 conseils rapides pour mieux dormir ce soir 🌟',
     icon: Heart,
- codex/add-sleep-reminder-features-r1wbd3
     image: {
       src: '/images/comprendre-sommeil/article-5-conseils.svg',
       alt: 'Typographie lumineuse “Mieux s’endormir — simple et efficace”.',
       name: 'article-5-conseils.svg',
     },
- main
     paragraphs: [
       'Éteins les écrans 30–60 min avant le coucher.',
       'Baisse la lumière — favorise la mélatonine.',
@@ -177,11 +157,15 @@ export const ComprendreSommeil = () => {
                 Les bases simples et pratiques pour mieux dormir — cycles, routines et conseils applicables ce soir.
               </p>
             </div>
-            <div
-              role="img"
-              aria-label="Illustration apaisante de la nuit"
-              className="hidden h-32 w-full max-w-xs flex-none rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 md:block"
-            />
+            <figure className="hidden w-full max-w-xs flex-none md:block">
+              <img
+                src="/images/comprendre-sommeil/hero.svg"
+                alt="Illustration onirique violette avec constellation et horizon doux."
+                className="h-32 w-full rounded-3xl object-cover shadow-md"
+                loading="lazy"
+              />
+              <figcaption className="sr-only">Illustration : hero.svg</figcaption>
+            </figure>
           </div>
         </section>
 
@@ -219,8 +203,8 @@ export const ComprendreSommeil = () => {
                     <h2 className="text-2xl font-semibold text-foreground md:text-3xl">{article.title}</h2>
                   </div>
                 </header>
+
                 <figure className="mt-4 overflow-hidden rounded-2xl border border-border/50 bg-muted/30">
- codex/add-sleep-reminder-features-r1wbd3
                   <img
                     src={article.image.src}
                     alt={article.image.alt}
@@ -228,19 +212,14 @@ export const ComprendreSommeil = () => {
                     loading="lazy"
                   />
                   <figcaption className="sr-only">Illustration : {article.image.name}</figcaption>
-
-                  <div
-                    role="img"
-                    aria-label={`Illustration pour ${article.title}`}
-                    className="h-28 w-full bg-gradient-to-r from-primary/20 via-primary/10 to-transparent"
-                  />
- main
                 </figure>
+
                 <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">
                   {article.paragraphs.map((paragraph, index) => (
                     <p key={index}>{paragraph}</p>
                   ))}
                 </div>
+
                 <footer className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <p className="text-sm font-medium text-foreground">{article.summary}</p>
                   <div className="flex flex-wrap gap-3">
