@@ -1,0 +1,10 @@
+Routine "Préparation cocon" — durée totale 10 minutes
+
+0:00-1:30  Range les objets autour de ton lit, plie un plaid, prépare un espace apaisant.
+1:30-3:00  Allume une lumière douce ou une bougie sécurisée, observe la lueur quelques instants.
+3:00-4:30  Vaporise une brume d'oreiller ou dispose quelques gouttes d'huile essentielle sur un tissu.
+4:30-6:00  Lisse doucement tes draps et secoue ton oreiller pour créer une sensation de fraîcheur.
+6:00-7:30  Prépare un verre d'eau pour la nuit et place ton réveil hors de portée de la main.
+7:30-8:30  Éteins les sources de bruit inutiles, ajuste la température de la pièce si nécessaire.
+8:30-9:30  Assieds-toi sur le lit, étire le dos et sens le contact rassurant des couvertures.
+9:30-10:00  Remercie-toi pour cette préparation, souffle profondément et allonge-toi pour la nuit.
