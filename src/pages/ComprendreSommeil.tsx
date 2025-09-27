@@ -22,7 +22,6 @@ const articles = [
     id: 'article-1',
     title: 'Qu’est-ce que le sommeil ? 💤',
     icon: Bed,
-   ,
     paragraphs: [
       "Le sommeil est un besoin biologique essentiel : c’est le moment où ton corps et ton cerveau se réparent, consolident la mémoire et régulent les émotions. On dort en plusieurs phases qui ont chacune un rôle (récupération physique, consolidation mentale, rêves).",
       "Même sans entrer dans la science, garder une routine régulière et un environnement calme aide énormément. Le sommeil n’est pas juste “ne pas être réveillé” — c’est un processus actif qui se construit chaque soir.",
@@ -37,7 +36,6 @@ const articles = [
     id: 'article-2',
     title: 'Les cycles de sommeil et pourquoi ils comptent 🔁',
     icon: Clock,
-  
     paragraphs: [
       "Le sommeil fonctionne en cycles (environ 90 minutes) composés de sommeil léger, profond puis REM (où se produisent les rêves). Ces cycles se répètent 4 à 6 fois selon la durée totale de sommeil.",
       "Chaque phase a un rôle : le profond pour la récupération physique, le REM pour la consolidation émotionnelle et mémoire. Respecter la durée et la régularité permet d’optimiser ces phases naturellement.",
@@ -49,7 +47,6 @@ const articles = [
     id: 'article-3',
     title: 'Pourquoi il vaut mieux se réveiller en fin de cycle ⏰',
     icon: Sparkles,
-    
     paragraphs: [
       "Se réveiller en plein sommeil profond provoque lourdeur, confusion et fatigue (le fameux « grogginess »). Si l’alarme sonne à la fin d’un cycle, on est souvent dans une phase plus légère et le réveil est plus naturel.",
       "C’est pourquoi le calculateur propose des heures de coucher / réveil basées sur ces cycles (en ajoutant un délai d’endormissement si besoin).",
@@ -64,7 +61,6 @@ const articles = [
     id: 'article-4',
     title: 'Routines du soir efficaces (templates) 🧘',
     icon: Feather,
-   
     paragraphs: [
       'Une routine courte et répétée prépare ton corps : baisse de lumière, déconnexion des écrans, exercices de respiration, petit étirement, journal rapide. Voici 3 templates simples à intégrer :',
       'Respiration relax (10 min) : installation, respiration cohérente, ancrage.',
@@ -78,7 +74,6 @@ const articles = [
     id: 'article-5',
     title: '10 conseils rapides pour mieux dormir ce soir 🌟',
     icon: Heart,
-    
     paragraphs: [
       'Éteins les écrans 30–60 min avant le coucher.',
       'Baisse la lumière — favorise la mélatonine.',
@@ -138,14 +133,13 @@ export const ComprendreSommeil = () => {
               </p>
             </div>
             {/* Hero — dégradé à la place de l'image */}
-<div
-  role="img"
-  aria-label="Illustration apaisante de la nuit"
-  className="hidden h-32 w-full max-w-xs flex-none rounded-3xl md:block
-             bg-gradient-to-br from-[#7C62FF]/80 via-[#B8A5FF]/40 to-[#0B0712]/60
-             shadow-md"
-></div>
-
+            <div
+              role="img"
+              aria-label="Illustration apaisante de la nuit"
+              className="hidden h-32 w-full max-w-xs flex-none rounded-3xl md:block
+                         bg-gradient-to-br from-[#7C62FF]/80 via-[#B8A5FF]/40 to-[#0B0712]/60
+                         shadow-md"
+            />
           </div>
         </section>
 
@@ -183,6 +177,14 @@ export const ComprendreSommeil = () => {
                     <h2 className="text-2xl font-semibold text-foreground md:text-3xl">{article.title}</h2>
                   </div>
                 </header>
+
+                {/* Dégradé à la place d'une image illustrative */}
+                <div
+                  role="img"
+                  aria-label={`Illustration pour ${article.title}`}
+                  className="mt-4 h-44 w-full overflow-hidden rounded-2xl border border-border/50
+                             bg-gradient-to-r from-[#6C4FFF]/70 via-[#A58FFF]/30 to-transparent"
+                />
 
                 <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">
                   {article.paragraphs.map((paragraph, index) => (
