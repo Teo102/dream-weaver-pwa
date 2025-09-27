@@ -73,6 +73,25 @@ export const Routines = () => {
     hydrateFromStorage();
   }, [hydrateFromStorage]);
 
+ codex/add-sleep-reminder-features-hgtg5f
+  useEffect(() => {
+    if (!activeRoutine || activeRoutine.paused) return;
+    if (!activeRoutine.endAt) return;
+
+    const tick = () => {
+      const remaining = computeRemaining(activeRoutine);
+      setRemainingSec(remaining);
+      if (remaining <= 0) {
+        handleRoutineFinished();
+      }
+    };
+
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    return () => window.clearInterval(interval);
+  }, [activeRoutine, handleRoutineFinished]);
+
+ main
   const openStartModal = (template: RoutineTemplate) => {
     setSelectedTemplate(template);
     setShowStartModal(true);
@@ -154,6 +173,7 @@ export const Routines = () => {
     setShowCompletionDialog(true);
   }, [activeRoutine]);
 
+ codex/add-sleep-reminder-features-hgtg5f
   useEffect(() => {
     if (!activeRoutine || activeRoutine.paused) return;
     if (!activeRoutine.endAt) return;
@@ -171,6 +191,7 @@ export const Routines = () => {
     return () => window.clearInterval(interval);
   }, [activeRoutine, handleRoutineFinished]);
 
+ main
   const confirmStopAsComplete = () => {
     setShowStopDialog(false);
     setRemainingSec(0);
