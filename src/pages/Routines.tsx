@@ -1,3 +1,4 @@
+// src/pages/Routines.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActiveRoutineStorage,
@@ -16,6 +17,8 @@ import { RoutineTimer } from '@/components/routines/RoutineTimer';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+
+const ROUTINE_DURATION = 600; // 10 minutes (fallback)
 
 const computeRemaining = (routine: ActiveRoutineStorage) => {
   if (routine.paused) {
@@ -37,7 +40,15 @@ export const Routines = () => {
   const [templates, setTemplates] = useState<RoutineTemplate[]>(defaultRoutineTemplates);
   const [selectedTemplate, setSelectedTemplate] = useState<RoutineTemplate | null>(null);
   const [activeRoutine, setActiveRoutine] = useState<ActiveRoutineStorage | null>(null);
-  const [remainingSec, setRemainingSec] = useState<number>(defaultRoutineTemplates[0]?.durations[0] ?? 600);
+
+  // initial remaining: if templates include durations, use first duration, otherwise fallback
+  const initialDuration =
+    defaultRoutineTemplates[0]?.durations?.[0] ??
+    defaultRoutineTemplates[0]?.durationSec ??
+    ROUTINE_DURATION;
+
+  const [remainingSec, setRemainingSec] = useState<number>(initialDuration);
+
   const [completedRoutines, setCompletedRoutines] = useState<CompletedRoutineEntry[]>([]);
   const [showStartModal, setShowStartModal] = useState(false);
   const [showStopDialog, setShowStopDialog] = useState(false);
@@ -59,7 +70,7 @@ export const Routines = () => {
     if (storedActive) {
       const remaining = computeRemaining(storedActive);
       if (remaining <= 0) {
-        // Routine finished while away
+        // Routine finished while away — normalize state and show completion
         saveActiveRoutine(null);
         setActiveRoutine({ ...storedActive, paused: true, endAt: undefined, remainingSec: 0 });
         setRemainingSec(0);
@@ -83,12 +94,14 @@ export const Routines = () => {
     setShowStartModal(true);
   };
 
-  const startRoutine = useCallback((template: RoutineTemplate, durationSec: number) => {
-    const endAt = Date.now() + durationSec * 1000;
+  // startRoutine accepts an optional durationSec (in seconds)
+  const startRoutine = useCallback((template: RoutineTemplate, durationSec?: number) => {
+    const duration = durationSec ?? template.durations?.[0] ?? ROUTINE_DURATION;
+    const endAt = Date.now() + duration * 1000;
     const routine: ActiveRoutineStorage = {
       id: template.id,
       title: template.title,
-      durationSec,
+      durationSec: duration,
       endAt,
       paused: false,
       startedAt: Date.now(),
@@ -96,7 +109,7 @@ export const Routines = () => {
 
     saveActiveRoutine(routine);
     setActiveRoutine(routine);
-    setRemainingSec(durationSec);
+    setRemainingSec(duration);
     setShowStartModal(false);
     setShowCompletionDialog(false);
     setShowStopDialog(false);
@@ -115,6 +128,8 @@ export const Routines = () => {
     setActiveRoutine(updated);
     setRemainingSec(currentRemaining);
     saveActiveRoutine(updated);
+    // still considered an active routine (paused)
+    notifyActiveRoutineChange(true);
   };
 
   const resumeRoutine = () => {
@@ -129,6 +144,7 @@ export const Routines = () => {
     };
     setActiveRoutine(updated);
     saveActiveRoutine(updated);
+    notifyActiveRoutineChange(true);
   };
 
   const requestStop = () => {
@@ -139,7 +155,12 @@ export const Routines = () => {
   const abandonRoutine = () => {
     setShowStopDialog(false);
     setActiveRoutine(null);
-    setRemainingSec(selectedTemplate?.durations[0] ?? templates[0]?.durations[0] ?? 600);
+
+    // reset remaining to a sensible default (selected template if available, otherwise first template)
+    const defaultSec =
+      selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION;
+    setRemainingSec(defaultSec);
+
     saveActiveRoutine(null);
     notifyActiveRoutineChange(false);
   };
@@ -156,6 +177,7 @@ export const Routines = () => {
     setActiveRoutine(updated);
     saveActiveRoutine(null);
     setShowCompletionDialog(true);
+    // no active routine saved now
     notifyActiveRoutineChange(false);
   }, [activeRoutine]);
 
@@ -206,7 +228,11 @@ export const Routines = () => {
     setShowCompletionDialog(false);
     setShowStopDialog(false);
     setActiveRoutine(null);
-    setRemainingSec(selectedTemplate?.durations[0] ?? templates[0]?.durations[0] ?? 600);
+
+    const defaultSec =
+      selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION;
+    setRemainingSec(defaultSec);
+
     notifyActiveRoutineChange(false);
   }, [activeRoutine, completedRoutines, selectedTemplate, templates]);
 
@@ -214,12 +240,14 @@ export const Routines = () => {
     const templateToRestart = activeTemplate ?? selectedTemplate;
     setShowCompletionDialog(false);
     if (templateToRestart) {
-      startRoutine(templateToRestart, activeRoutine?.durationSec ?? templateToRestart.durations[0]);
+      // if there was an active routine, preserve its previous duration if present
+      const prevDuration = activeRoutine?.durationSec ?? templateToRestart.durations?.[0] ?? ROUTINE_DURATION;
+      startRoutine(templateToRestart, prevDuration);
     } else if (selectedTemplate) {
-      startRoutine(selectedTemplate, selectedTemplate.durations[0]);
+      startRoutine(selectedTemplate, selectedTemplate.durations?.[0]);
     } else {
       setActiveRoutine(null);
-      setRemainingSec(templates[0]?.durations[0] ?? 600);
+      setRemainingSec(ROUTINE_DURATION);
     }
   };
 
@@ -257,18 +285,13 @@ export const Routines = () => {
       <section className="rounded-3xl border border-border/60 bg-muted/30 p-5">
         <h2 className="text-lg font-semibold text-foreground">Historique rapide</h2>
         {formattedHistory.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">
-            Aucune routine complétée pour le moment. Lance-toi ce soir !
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Aucune routine complétée pour le moment. Lance-toi ce soir !</p>
         ) : (
           <ul className="mt-3 space-y-3 text-sm">
             {formattedHistory.slice(0, 5).map((entry) => (
               <li
                 key={`${entry.id}-${entry.completedAt}`}
-                className={cn(
-                  'rounded-2xl border border-primary/10 bg-background/80 px-4 py-3 shadow-sm',
-                  'flex flex-col gap-1'
-                )}
+                className={cn('rounded-2xl border border-primary/10 bg-background/80 px-4 py-3 shadow-sm', 'flex flex-col gap-1')}
               >
                 <span className="font-medium text-foreground">{entry.title}</span>
                 <span className="text-xs text-muted-foreground">{entry.formattedDate}</span>

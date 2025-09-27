@@ -1,3 +1,4 @@
+// src/components/Navigation.tsx
 import { Home, Calculator, BookOpen, Trophy, Settings, Timer, Sparkles } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -22,10 +23,10 @@ export const Navigation = () => {
             to={item.href}
             className={({ isActive }) =>
               cn(
-                "flex flex-col items-center p-2 rounded-xl transition-all duration-300 min-w-[60px]",
+                'flex flex-col items-center p-2 rounded-xl transition-all duration-300 min-w-[60px]',
                 isActive
-                  ? "text-primary bg-primary/10 shadow-sleep-glow"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? 'text-primary bg-primary/10 shadow-sleep-glow'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               )
             }
           >
