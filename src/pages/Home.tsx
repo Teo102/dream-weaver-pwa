@@ -108,7 +108,7 @@ export const Home = () => {
         </div>
 
         {/* Education Card */}
-        <Link to="/sleep-education">
+        <Link to="/comprendre-sommeil">
           <Card className="p-4 hover:shadow-sleep-glow transition-all duration-300 border-primary/20 bg-card/50 hover-scale">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-primary/10 rounded-lg">
