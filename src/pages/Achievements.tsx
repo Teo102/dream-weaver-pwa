@@ -21,7 +21,7 @@ export const Achievements = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <Trophy className="h-12 w-12 mx-auto mb-4 text-primary animate-pulse-glow" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Badges</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Succès</h1>
           <p className="text-muted-foreground text-sm">
             {unlockedCount} sur {achievements.length} débloqués
           </p>
@@ -54,14 +54,14 @@ export const Achievements = () => {
                     <h3 className="font-semibold text-foreground">{achievement.name}</h3>
                     {achievement.unlocked && (
                       <Badge variant="secondary" className="bg-primary text-primary-foreground text-xs">
-                        Unlocked
+                        Débloqué
                       </Badge>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">{achievement.description}</p>
                   {achievement.unlocked_at && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Unlocked {new Date(achievement.unlocked_at).toLocaleDateString()}
+                      Débloqué le {new Date(achievement.unlocked_at).toLocaleDateString('fr-FR')}
                     </p>
                   )}
                 </div>

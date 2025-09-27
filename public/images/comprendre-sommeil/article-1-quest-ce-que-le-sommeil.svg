@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="75" y1="52" x2="437" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C8B4FF" />
+      <stop offset="0.5" stop-color="#B59DFF" />
+      <stop offset="1" stop-color="#7C62FF" />
+    </linearGradient>
+    <linearGradient id="symbol" x1="256" y1="120" x2="256" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2E195A" stop-opacity="0.9" />
+      <stop offset="1" stop-color="#1B0B3A" />
+    </linearGradient>
+    <filter id="shadow" x="72" y="72" width="368" height="368" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="8" />
+      <feGaussianBlur stdDeviation="14" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0" />
+      <feBlend mode="normal" in2="SourceGraphic" result="shape" />
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <rect x="96" y="96" width="320" height="320" rx="72" fill="url(#bg)" />
+  </g>
+  <path d="M256 150C214 150 182 180 182 219.5C182 227.6 188.6 234.2 196.7 234.2C204.8 234.2 211.4 227.6 211.4 219.5C211.4 198.4 228.4 181.5 256 181.5C283.6 181.5 300.6 198.4 300.6 219.5C300.6 239.3 288.7 251.7 269.8 263.8C249.7 276.8 238 294.8 238 320.8V328.8C238 337 244.6 343.6 252.8 343.6H259.2C267.4 343.6 274 337 274 328.8V322C274 307.3 281.1 296.8 299 285.2C321 270.9 338 252.2 338 221.8C338 180.8 304.7 150 256 150Z" fill="url(#symbol)" />
+  <circle cx="256" cy="372" r="18" fill="url(#symbol)" />
+  <g opacity="0.25">
+    <circle cx="132" cy="156" r="12" fill="white" />
+    <circle cx="408" cy="188" r="8" fill="white" />
+    <circle cx="164" cy="388" r="6" fill="white" />
+  </g>
+</svg>
