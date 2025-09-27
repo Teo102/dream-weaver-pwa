@@ -1,14 +1,15 @@
+// src/components/Navigation.tsx
 import { Home, Calculator, BookOpen, Trophy, Settings, Timer } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Home' },
+  { href: '/', icon: Home, label: 'Accueil' },
   { href: '/routines', icon: Timer, label: 'Routines' },
-  { href: '/calculator', icon: Calculator, label: 'Calculator' },
+  { href: '/calculator', icon: Calculator, label: 'Calculateur' },
   { href: '/journal', icon: BookOpen, label: 'Journal' },
-  { href: '/achievements', icon: Trophy, label: 'Achievements' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
+  { href: '/achievements', icon: Trophy, label: 'Succès' },
+  { href: '/settings', icon: Settings, label: 'Réglages' },
 ];
 
 export const Navigation = () => {

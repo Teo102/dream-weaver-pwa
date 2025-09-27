@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navigation } from './Navigation';
+import { loadActiveRoutine } from '@/utils/routinesStorage';
 
 interface LayoutProps {
   children?: ReactNode;
@@ -8,7 +9,33 @@ interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
-  const hideNavigation = ['/', '/routine', '/onboarding'].includes(location.pathname);
+  const [hasActiveRoutine, setHasActiveRoutine] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const active = loadActiveRoutine();
+      setHasActiveRoutine(Boolean(active));
+    } catch (error) {
+      console.error('Impossible de vérifier la routine active', error);
+    }
+
+    const handleRoutineChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ hasActive: boolean }>;
+      setHasActiveRoutine(Boolean(customEvent.detail?.hasActive));
+    };
+
+    window.addEventListener('routine:active-change', handleRoutineChange);
+    return () => {
+      window.removeEventListener('routine:active-change', handleRoutineChange);
+    };
+  }, []);
+
+  const baseHiddenRoutes = ['/', '/routine', '/onboarding'];
+  const hideNavigation =
+    baseHiddenRoutes.includes(location.pathname) ||
+    (location.pathname === '/routines' && hasActiveRoutine);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

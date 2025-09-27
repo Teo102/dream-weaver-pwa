@@ -1,5 +1,14 @@
+// src/components/routines/RoutineTimer.tsx
 import { useEffect, useMemo, useState } from 'react';
-import { Pause, Play, Square, RotateCcw, FileText, Headphones } from 'lucide-react';
+import {
+  Pause,
+  Play,
+  Square,
+  RotateCcw,
+  ListChecks,
+  FileText,
+  Headphones,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -38,6 +47,12 @@ interface RoutineTimerProps {
   onRestart: () => void;
 }
 
+const formatTime = (value: number) => {
+  const minutes = Math.max(0, Math.floor(value / 60));
+  const seconds = Math.max(0, value % 60);
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
 export const RoutineTimer = ({
   routine,
   template,
@@ -60,6 +75,7 @@ export const RoutineTimer = ({
   const [scriptLoading, setScriptLoading] = useState(false);
   const [scriptError, setScriptError] = useState<string | null>(null);
 
+  // Reset accordion/script when template changes
   useEffect(() => {
     setOpenAccordion(undefined);
     setScriptContent('');
@@ -67,6 +83,7 @@ export const RoutineTimer = ({
     setScriptLoading(false);
   }, [template.id]);
 
+  // Load script file lazily when user opens "script" section
   useEffect(() => {
     if (openAccordion === 'script' && !scriptContent && !scriptLoading) {
       const controller = new AbortController();
@@ -82,7 +99,7 @@ export const RoutineTimer = ({
         .then((text) => {
           setScriptContent(text.trim());
         })
-        .catch((error) => {
+        .catch((error: any) => {
           if (error.name !== 'AbortError') {
             console.error(error);
             setScriptError("Impossible de charger le script pour le moment.");
@@ -92,70 +109,145 @@ export const RoutineTimer = ({
 
       return () => controller.abort();
     }
+    return;
   }, [openAccordion, scriptContent, scriptLoading, template.scriptFileName]);
 
+  // Close accordion when completion dialog opens
   useEffect(() => {
     if (showCompletionDialog && openAccordion !== undefined) {
       setOpenAccordion(undefined);
     }
   }, [showCompletionDialog, openAccordion]);
 
-  const formattedTime = useMemo(() => {
-    const minutes = Math.max(0, Math.floor(remainingSec / 60));
-    const seconds = Math.max(0, remainingSec % 60);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  }, [remainingSec]);
+  // formatted remaining time
+  const formattedTime = useMemo(() => formatTime(remainingSec), [remainingSec]);
 
+  // progress % of whole routine
   const progress = useMemo(() => {
     if (!routine.durationSec) return 0;
-    const clamped = Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec));
-    return (clamped / routine.durationSec) * 100;
+    const elapsed = Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec));
+    return (elapsed / routine.durationSec) * 100;
   }, [routine.durationSec, remainingSec]);
+
+  /**
+   * Steps handling:
+   * - if template.steps exists and has durations, scale them to fit routine.durationSec
+   * - ensure a minimum per step (30s)
+   * - compute per-step start/end and determine active step
+   */
+  const { stepStates, activeStep, activeStepElapsed, activeStepRemaining, elapsedSec } = useMemo(() => {
+    const result = {
+      stepStates: [] as any[],
+      activeStep: null as any | null,
+      activeStepElapsed: 0,
+      activeStepRemaining: 0,
+      elapsedSec: Math.max(0, routine.durationSec - remainingSec),
+    };
+
+    const steps = template.steps ?? [];
+
+    if (!steps || !steps.length) {
+      return result;
+    }
+
+    // base durations (if provided in steps) - fallback to equal weights
+    const baseTotal = steps.reduce((acc, s) => acc + (s.durationSec ?? 0), 0);
+    const totalTarget = routine.durationSec || 600;
+    const stepsCount = steps.length;
+    const minPerStep = 30; // seconds
+    const minimumTotal = minPerStep * stepsCount;
+    const adjustablePool = Math.max(totalTarget - minimumTotal, 0);
+
+    let allocatedPool = 0;
+    const scaled = steps.map((step, idx) => {
+      const ratio = baseTotal ? ((step.durationSec ?? 0) / baseTotal) : (1 / stepsCount);
+      let adjustableShare = Math.round(adjustablePool * ratio);
+      if (idx === stepsCount - 1) {
+        adjustableShare = adjustablePool - allocatedPool;
+      } else if (allocatedPool + adjustableShare > adjustablePool) {
+        adjustableShare = Math.max(0, adjustablePool - allocatedPool);
+      }
+      allocatedPool += adjustableShare;
+      const scaledDurationSec = Math.max(minPerStep, minPerStep + adjustableShare);
+      return {
+        ...step,
+        scaledDurationSec,
+      };
+    });
+
+    // build cumulative start/end and find active
+    let cumulative = 0;
+    let activeIndex = -1;
+    const states = scaled.map((s) => {
+      const start = cumulative;
+      const end = start + s.scaledDurationSec;
+      cumulative = end;
+      return {
+        ...s,
+        start,
+        end,
+      };
+    });
+
+    const el = result.elapsedSec;
+    for (let i = 0; i < states.length; i++) {
+      const st = states[i];
+      if (el >= st.start && el < st.end) {
+        activeIndex = i;
+        break;
+      }
+    }
+    if (activeIndex === -1 && states.length) {
+      // if elapsed beyond last, mark last as active/completed
+      activeIndex = states.length - 1;
+    }
+
+    const aStep = activeIndex >= 0 ? states[activeIndex] : null;
+    const aElapsed = aStep ? Math.max(0, el - aStep.start) : 0;
+    const aRemaining = aStep ? Math.max(0, aStep.end - el) : 0;
+
+    result.stepStates = states;
+    result.activeStep = aStep;
+    result.activeStepElapsed = aElapsed;
+    result.activeStepRemaining = aRemaining;
+    return result;
+  }, [template.steps, routine.durationSec, remainingSec]);
 
   return (
     <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm px-4 py-6 overflow-y-auto">
-      <div className="mx-auto flex h-full w-full max-w-md flex-col gap-6">
+      <div className="mx-auto flex h-full w-full max-w-2xl flex-col gap-6">
         <header className="flex flex-col gap-1" aria-live="polite">
           <p className="text-sm font-medium text-primary">Routine en cours</p>
           <h2 className="text-2xl font-bold text-foreground">{template.title}</h2>
-          <span className="text-sm text-muted-foreground">{isPaused ? 'En pause' : 'Temps restant'} — {formattedTime}</span>
+          <span className="text-sm text-muted-foreground">
+            {isPaused ? 'En pause' : 'Temps restant'} — {formattedTime}
+          </span>
+          {activeStep && (
+            <span className="text-xs text-muted-foreground" aria-live="polite">
+              Étape actuelle : {activeStep.title} ({formatTime(activeStepRemaining)} restantes)
+            </span>
+          )}
         </header>
 
         <section className="rounded-3xl border border-primary/20 bg-card/80 p-8 text-center shadow-lg">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary/80">Timer</p>
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary/80">Minuteur</p>
           <div className="mt-4 text-6xl font-mono font-bold text-foreground" aria-live="assertive">
             {formattedTime}
           </div>
           <Progress value={progress} className="mt-6 h-3" aria-hidden="true" />
           <div className="mt-6 flex flex-col gap-3">
             {isPaused ? (
-              <Button
-                size="lg"
-                className="w-full py-4 text-lg"
-                onClick={onResume}
-                aria-label="Reprendre la routine"
-              >
+              <Button size="lg" className="w-full py-4 text-lg" onClick={onResume} aria-label="Reprendre la routine">
                 <Play className="mr-2 h-5 w-5" aria-hidden="true" />
                 Reprendre
               </Button>
             ) : (
-              <Button
-                size="lg"
-                className="w-full py-4 text-lg"
-                onClick={onPause}
-                aria-label="Mettre la routine en pause"
-              >
+              <Button size="lg" className="w-full py-4 text-lg" onClick={onPause} aria-label="Mettre la routine en pause">
                 <Pause className="mr-2 h-5 w-5" aria-hidden="true" />
                 Pause
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full py-4 text-lg"
-              onClick={onRequestStop}
-              aria-label="Arrêter la routine"
-            >
+            <Button variant="outline" size="lg" className="w-full py-4 text-lg" onClick={onRequestStop} aria-label="Arrêter la routine">
               <Square className="mr-2 h-5 w-5" aria-hidden="true" />
               Arrêter
             </Button>
@@ -164,6 +256,7 @@ export const RoutineTimer = ({
 
         <section className="space-y-4 rounded-3xl border border-border/60 bg-muted/40 p-5">
           <h3 className="text-base font-semibold text-foreground">Contenus de la routine</h3>
+
           <Accordion
             type="single"
             collapsible
@@ -177,6 +270,64 @@ export const RoutineTimer = ({
             }}
             className="w-full"
           >
+            {/* Déroulé (steps) */}
+            <AccordionItem value="steps" className="border-none">
+              <AccordionTrigger className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium">
+                <span className="inline-flex items-center gap-2">
+                  <ListChecks className="h-4 w-4" aria-hidden="true" />
+                  Voir le déroulé
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="rounded-2xl bg-background px-4 py-3 text-sm leading-relaxed text-foreground">
+                {template.steps && template.steps.length > 0 ? (
+                  <ol className="space-y-3">
+                    {stepStates.map((step, index) => {
+                      const isActive = activeStep && activeStep.title === step.title;
+                      const isCompleted = elapsedSec >= step.end;
+                      const stepElapsed = isActive ? (activeStepElapsed ?? 0) : isCompleted ? step.scaledDurationSec : 0;
+                      const stepRemaining = isActive ? (activeStepRemaining ?? 0) : isCompleted ? 0 : step.scaledDurationSec;
+
+                      return (
+                        <li
+                          key={index}
+                          className={
+                            'rounded-2xl border px-4 py-3 transition-colors ' +
+                            (isActive
+                              ? 'border-primary bg-primary/10'
+                              : isCompleted
+                              ? 'border-border/70 bg-background'
+                              : 'border-border/60 bg-background/60')
+                          }
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-foreground">
+                                Étape {index + 1} — {step.title}
+                              </p>
+                              {step.description && <p className="mt-1 text-xs text-muted-foreground">{step.description}</p>}
+                            </div>
+                            <div className="text-right text-xs font-medium text-muted-foreground">
+                              <p>Durée : {Math.round(step.scaledDurationSec / 60)} min</p>
+                              <p>
+                                {isCompleted
+                                  ? 'Terminé'
+                                  : isActive
+                                  ? `${formatTime(stepElapsed)} / ${formatTime(step.scaledDurationSec)}`
+                                  : `${formatTime(stepRemaining)}`}
+                              </p>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                ) : (
+                  <p className="text-muted-foreground">Aucun déroulé détaillé disponible pour cette routine.</p>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Script (raw text file) */}
             <AccordionItem value="script" className="border-none">
               <AccordionTrigger className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium">
                 <span className="inline-flex items-center gap-2">
@@ -188,16 +339,15 @@ export const RoutineTimer = ({
                 {scriptLoading && <p>Chargement…</p>}
                 {scriptError && <p className="text-destructive">{scriptError}</p>}
                 {!scriptLoading && !scriptError && scriptContent && (
-                  <pre className="whitespace-pre-wrap font-sans text-sm text-foreground/90">
-                    {scriptContent}
-                  </pre>
+                  <pre className="whitespace-pre-wrap font-sans text-sm text-foreground/90">{scriptContent}</pre>
                 )}
                 {!scriptLoading && !scriptError && !scriptContent && (
-                  <p className="text-muted-foreground">Le script s’affichera ici.</p>
+                  <p className="text-muted-foreground">Le script s’affichera ici lorsque tu l’ouvriras.</p>
                 )}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+
           <Button
             variant="outline"
             disabled
@@ -208,6 +358,7 @@ export const RoutineTimer = ({
           </Button>
         </section>
 
+        {/* Stop dialog */}
         <AlertDialog open={showStopDialog} onOpenChange={onStopDialogChange}>
           <AlertDialogContent className="max-w-sm rounded-2xl p-6">
             <AlertDialogHeader>
@@ -217,10 +368,7 @@ export const RoutineTimer = ({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex gap-2 sm:space-x-0">
-              <AlertDialogCancel
-                className="flex-1 rounded-xl border-muted-foreground/20"
-                onClick={onResume}
-              >
+              <AlertDialogCancel className="flex-1 rounded-xl border-muted-foreground/20" onClick={onResume}>
                 Reprendre
               </AlertDialogCancel>
               <AlertDialogAction
@@ -229,24 +377,21 @@ export const RoutineTimer = ({
               >
                 Terminer
               </AlertDialogAction>
-              <Button
-                variant="ghost"
-                className="flex-1 rounded-xl text-destructive hover:text-destructive"
-                onClick={onConfirmStopAbandon}
-              >
+              <Button variant="ghost" className="flex-1 rounded-xl text-destructive hover:text-destructive" onClick={onConfirmStopAbandon}>
                 Abandonner
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* Completion dialog */}
         <AlertDialog open={showCompletionDialog} onOpenChange={onCompletionDialogChange}>
           <AlertDialogContent className="max-w-sm rounded-2xl p-6 text-center">
             <AlertDialogHeader>
               <RotateCcw className="mx-auto h-12 w-12 text-primary" aria-hidden="true" />
               <AlertDialogTitle className="mt-3 text-2xl font-bold">Routine terminée !</AlertDialogTitle>
               <AlertDialogDescription>
-                Bravo, tu viens de prendre 10 minutes pour toi. Tu peux enregistrer cette routine ou la relancer.
+                Bravo, tu viens de prendre {Math.round((routine.durationSec ?? 600) / 60)} minutes pour toi. Tu peux enregistrer cette routine ou la relancer.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex flex-col gap-3">
@@ -256,11 +401,7 @@ export const RoutineTimer = ({
               >
                 Marquer comme complétée
               </AlertDialogAction>
-              <Button
-                variant="outline"
-                className="w-full rounded-xl py-3 text-base"
-                onClick={onRestart}
-              >
+              <Button variant="outline" className="w-full rounded-xl py-3 text-base" onClick={onRestart}>
                 Refaire la routine
               </Button>
             </AlertDialogFooter>

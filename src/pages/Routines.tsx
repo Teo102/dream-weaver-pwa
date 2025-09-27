@@ -1,3 +1,4 @@
+// src/pages/Routines.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActiveRoutineStorage,
@@ -17,7 +18,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
-const ROUTINE_DURATION = 600; // 10 minutes
+const ROUTINE_DURATION = 600; // 10 minutes (fallback)
 
 const computeRemaining = (routine: ActiveRoutineStorage) => {
   if (routine.paused) {
@@ -30,11 +31,23 @@ const computeRemaining = (routine: ActiveRoutineStorage) => {
   return routine.durationSec;
 };
 
+const notifyActiveRoutineChange = (hasActive: boolean) => {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('routine:active-change', { detail: { hasActive } }));
+};
+
 export const Routines = () => {
   const [templates, setTemplates] = useState<RoutineTemplate[]>(defaultRoutineTemplates);
   const [selectedTemplate, setSelectedTemplate] = useState<RoutineTemplate | null>(null);
   const [activeRoutine, setActiveRoutine] = useState<ActiveRoutineStorage | null>(null);
-  const [remainingSec, setRemainingSec] = useState<number>(ROUTINE_DURATION);
+
+  // initial remaining: if templates include durations, use first duration, otherwise fallback
+  const initialDuration =
+    defaultRoutineTemplates[0]?.durations?.[0] ??
+    defaultRoutineTemplates[0]?.durationSec ??
+    ROUTINE_DURATION;
+
+  const [remainingSec, setRemainingSec] = useState<number>(initialDuration);
   const [completedRoutines, setCompletedRoutines] = useState<CompletedRoutineEntry[]>([]);
   const [showStartModal, setShowStartModal] = useState(false);
   const [showStopDialog, setShowStopDialog] = useState(false);
@@ -61,10 +74,12 @@ export const Routines = () => {
         setActiveRoutine({ ...storedActive, paused: true, endAt: undefined, remainingSec: 0 });
         setRemainingSec(0);
         setShowCompletionDialog(true);
+        notifyActiveRoutineChange(true);
         return;
       }
       setActiveRoutine(storedActive);
       setRemainingSec(remaining);
+      notifyActiveRoutineChange(true);
     }
   }, []);
 
@@ -78,27 +93,27 @@ export const Routines = () => {
     setShowStartModal(true);
   };
 
-  const startRoutine = useCallback(
-    (template: RoutineTemplate) => {
-      const endAt = Date.now() + ROUTINE_DURATION * 1000;
-      const routine: ActiveRoutineStorage = {
-        id: template.id,
-        title: template.title,
-        durationSec: ROUTINE_DURATION,
-        endAt,
-        paused: false,
-        startedAt: Date.now(),
-      };
+  // startRoutine accepts durationSec (optional) to support templates with durations
+  const startRoutine = useCallback((template: RoutineTemplate, durationSec?: number) => {
+    const duration = durationSec ?? template.durations?.[0] ?? ROUTINE_DURATION;
+    const endAt = Date.now() + duration * 1000;
+    const routine: ActiveRoutineStorage = {
+      id: template.id,
+      title: template.title,
+      durationSec: duration,
+      endAt,
+      paused: false,
+      startedAt: Date.now(),
+    };
 
-      saveActiveRoutine(routine);
-      setActiveRoutine(routine);
-      setRemainingSec(ROUTINE_DURATION);
-      setShowStartModal(false);
-      setShowCompletionDialog(false);
-      setShowStopDialog(false);
-    },
-    []
-  );
+    saveActiveRoutine(routine);
+    setActiveRoutine(routine);
+    setRemainingSec(duration);
+    setShowStartModal(false);
+    setShowCompletionDialog(false);
+    setShowStopDialog(false);
+    notifyActiveRoutineChange(true);
+  }, []);
 
   const pauseRoutine = () => {
     if (!activeRoutine) return;
@@ -126,6 +141,7 @@ export const Routines = () => {
     };
     setActiveRoutine(updated);
     saveActiveRoutine(updated);
+    notifyActiveRoutineChange(true);
   };
 
   const requestStop = () => {
@@ -136,8 +152,12 @@ export const Routines = () => {
   const abandonRoutine = () => {
     setShowStopDialog(false);
     setActiveRoutine(null);
-    setRemainingSec(ROUTINE_DURATION);
+    // reset remaining to a sensible default (selected template if available, otherwise first template)
+    const defaultSec =
+      selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION;
+    setRemainingSec(defaultSec);
     saveActiveRoutine(null);
+    notifyActiveRoutineChange(false);
   };
 
   const handleRoutineFinished = useCallback(() => {
@@ -152,6 +172,7 @@ export const Routines = () => {
     setActiveRoutine(updated);
     saveActiveRoutine(null);
     setShowCompletionDialog(true);
+    notifyActiveRoutineChange(true);
   }, [activeRoutine]);
 
   useEffect(() => {
@@ -185,6 +206,7 @@ export const Routines = () => {
     }
     saveActiveRoutine(null);
     setShowCompletionDialog(true);
+    notifyActiveRoutineChange(true);
   };
 
   const recordCompletion = useCallback(() => {
@@ -200,16 +222,21 @@ export const Routines = () => {
     setShowCompletionDialog(false);
     setShowStopDialog(false);
     setActiveRoutine(null);
-    setRemainingSec(ROUTINE_DURATION);
-  }, [activeRoutine, completedRoutines]);
+    const defaultSec =
+      selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION;
+    setRemainingSec(defaultSec);
+    notifyActiveRoutineChange(false);
+  }, [activeRoutine, completedRoutines, selectedTemplate, templates]);
 
   const restartRoutine = () => {
     const templateToRestart = activeTemplate ?? selectedTemplate;
     setShowCompletionDialog(false);
     if (templateToRestart) {
-      startRoutine(templateToRestart);
+      // if there was an active routine, preserve its previous duration if present
+      const prevDuration = activeRoutine?.durationSec ?? templateToRestart.durations?.[0];
+      startRoutine(templateToRestart, prevDuration);
     } else if (selectedTemplate) {
-      startRoutine(selectedTemplate);
+      startRoutine(selectedTemplate, selectedTemplate.durations?.[0]);
     } else {
       setActiveRoutine(null);
       setRemainingSec(ROUTINE_DURATION);
@@ -231,17 +258,17 @@ export const Routines = () => {
   );
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-6 bg-background px-4 py-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 bg-background px-4 py-10 sm:px-6 lg:px-12">
       <header className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary/80">Sleep Reminder</p>
         <h1 className="text-3xl font-bold text-foreground">Routines du soir</h1>
         <p className="text-sm text-muted-foreground">
-          Choisis une routine de 10 minutes pour préparer ton corps et ton esprit au sommeil. Toutes les actions
+          Choisis une routine guidée, personnalise sa durée et laisse-toi guider étape par étape. Toutes les actions
           sont sauvegardées sur ton appareil.
         </p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-5 md:grid-cols-2">
         {templates.map((template) => (
           <RoutineCard key={template.id} template={template} onStart={openStartModal} />
         ))}
@@ -275,9 +302,10 @@ export const Routines = () => {
         open={showStartModal}
         onOpenChange={setShowStartModal}
         template={selectedTemplate ?? undefined}
-        onConfirm={() => {
+        // RoutineModal must call onConfirm(durationSec)
+        onConfirm={(duration) => {
           if (selectedTemplate) {
-            startRoutine(selectedTemplate);
+            startRoutine(selectedTemplate, duration);
           }
         }}
       />
