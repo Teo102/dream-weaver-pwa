@@ -49,7 +49,7 @@ interface RoutineTimerProps {
 
 const formatTime = (value: number) => {
   const minutes = Math.max(0, Math.floor(value / 60));
-  const seconds = Math.max(0, value % 60);
+  const seconds = Math.max(0, Math.floor(value % 60));
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
@@ -75,7 +75,7 @@ export const RoutineTimer = ({
   const [scriptLoading, setScriptLoading] = useState(false);
   const [scriptError, setScriptError] = useState<string | null>(null);
 
-  // Reset accordion/script when template changes
+  // Reset accordion and script state when template changes
   useEffect(() => {
     setOpenAccordion(undefined);
     setScriptContent('');
@@ -83,33 +83,29 @@ export const RoutineTimer = ({
     setScriptLoading(false);
   }, [template.id]);
 
-  // Load script file lazily when user opens "script" section
+  // Lazy-load script file when the "script" accordion is opened
   useEffect(() => {
-    if (openAccordion === 'script' && !scriptContent && !scriptLoading) {
-      const controller = new AbortController();
-      setScriptLoading(true);
-      setScriptError(null);
-      fetch(`/docs/routines-scripts/${template.scriptFileName}`, { signal: controller.signal })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Le script est introuvable.');
-          }
-          return response.text();
-        })
-        .then((text) => {
-          setScriptContent(text.trim());
-        })
-        .catch((error: any) => {
-          if (error.name !== 'AbortError') {
-            console.error(error);
-            setScriptError("Impossible de charger le script pour le moment.");
-          }
-        })
-        .finally(() => setScriptLoading(false));
+    if (openAccordion !== 'script' || scriptContent || scriptLoading) return;
 
-      return () => controller.abort();
-    }
-    return;
+    const controller = new AbortController();
+    setScriptLoading(true);
+    setScriptError(null);
+
+    fetch(`/docs/routines-scripts/${template.scriptFileName}`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error('Le script est introuvable.');
+        return res.text();
+      })
+      .then((text) => setScriptContent(text.trim()))
+      .catch((err: any) => {
+        if (err.name !== 'AbortError') {
+          console.error(err);
+          setScriptError("Impossible de charger le script pour le moment.");
+        }
+      })
+      .finally(() => setScriptLoading(false));
+
+    return () => controller.abort();
   }, [openAccordion, scriptContent, scriptLoading, template.scriptFileName]);
 
   // Close accordion when completion dialog opens
@@ -117,47 +113,49 @@ export const RoutineTimer = ({
     if (showCompletionDialog && openAccordion !== undefined) {
       setOpenAccordion(undefined);
     }
-  }, [showCompletionDialog, openAccordion]);
+  }, [showCompletionDialog]);
 
-  // formatted remaining time
   const formattedTime = useMemo(() => formatTime(remainingSec), [remainingSec]);
 
-  // progress % of whole routine
-  const progress = useMemo(() => {
-    if (!routine.durationSec) return 0;
-    const elapsed = Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec));
-    return (elapsed / routine.durationSec) * 100;
-  }, [routine.durationSec, remainingSec]);
+  // elapsed seconds since routine started
+  const elapsedSec = Math.max(0, (routine.durationSec ?? 0) - remainingSec);
 
-  /**
-   * Steps handling:
-   * - if template.steps exists and has durations, scale them to fit routine.durationSec
-   * - ensure a minimum per step (30s)
-   * - compute per-step start/end and determine active step
-   */
-  const { stepStates, activeStep, activeStepElapsed, activeStepRemaining, elapsedSec } = useMemo(() => {
-    const result = {
-      stepStates: [] as any[],
-      activeStep: null as any | null,
+  // Compute scaled steps, step states, active step, progress
+  const {
+    stepStates,
+    activeStep,
+    activeStepElapsed,
+    activeStepRemaining,
+    progress,
+  } = useMemo(() => {
+    const steps = (template.steps ?? []).map((s) => ({ ...s }));
+    const result: {
+      stepStates: Array<any>;
+      activeStep: any | null;
+      activeStepElapsed: number;
+      activeStepRemaining: number;
+      progress: number;
+    } = {
+      stepStates: [],
+      activeStep: null,
       activeStepElapsed: 0,
       activeStepRemaining: 0,
-      elapsedSec: Math.max(0, routine.durationSec - remainingSec),
+      progress: 0,
     };
 
-    const steps = template.steps ?? [];
-
-    if (!steps || !steps.length) {
+    const totalTarget = routine.durationSec && routine.durationSec > 0 ? routine.durationSec : 600;
+    if (!steps.length) {
+      result.progress = routine.durationSec ? (Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec)) / routine.durationSec) * 100 : 0;
       return result;
     }
 
-    // base durations (if provided in steps) - fallback to equal weights
     const baseTotal = steps.reduce((acc, s) => acc + (s.durationSec ?? 0), 0);
-    const totalTarget = routine.durationSec || 600;
     const stepsCount = steps.length;
     const minPerStep = 30; // seconds
     const minimumTotal = minPerStep * stepsCount;
     const adjustablePool = Math.max(totalTarget - minimumTotal, 0);
 
+    // allocate adjustable pool proportionally
     let allocatedPool = 0;
     const scaled = steps.map((step, idx) => {
       const ratio = baseTotal ? ((step.durationSec ?? 0) / baseTotal) : (1 / stepsCount);
@@ -169,47 +167,42 @@ export const RoutineTimer = ({
       }
       allocatedPool += adjustableShare;
       const scaledDurationSec = Math.max(minPerStep, minPerStep + adjustableShare);
-      return {
-        ...step,
-        scaledDurationSec,
-      };
+      return { ...step, scaledDurationSec };
     });
 
-    // build cumulative start/end and find active
+    // build cumulative states
     let cumulative = 0;
-    let activeIndex = -1;
     const states = scaled.map((s) => {
       const start = cumulative;
-      const end = start + s.scaledDurationSec;
+      const end = start + (s.scaledDurationSec ?? minPerStep);
       cumulative = end;
-      return {
-        ...s,
-        start,
-        end,
-      };
+      return { ...s, start, end };
     });
 
-    const el = result.elapsedSec;
+    // determine active index by elapsedSec
+    let activeIndex = -1;
     for (let i = 0; i < states.length; i++) {
       const st = states[i];
-      if (el >= st.start && el < st.end) {
+      if (elapsedSec >= st.start && elapsedSec < st.end) {
         activeIndex = i;
         break;
       }
     }
     if (activeIndex === -1 && states.length) {
-      // if elapsed beyond last, mark last as active/completed
+      // if elapsed beyond last step, mark last as active/completed
       activeIndex = states.length - 1;
     }
 
     const aStep = activeIndex >= 0 ? states[activeIndex] : null;
-    const aElapsed = aStep ? Math.max(0, el - aStep.start) : 0;
-    const aRemaining = aStep ? Math.max(0, aStep.end - el) : 0;
+    const aElapsed = aStep ? Math.max(0, elapsedSec - aStep.start) : 0;
+    const aRemaining = aStep ? Math.max(0, aStep.end - elapsedSec) : 0;
 
     result.stepStates = states;
     result.activeStep = aStep;
     result.activeStepElapsed = aElapsed;
     result.activeStepRemaining = aRemaining;
+    result.progress = routine.durationSec && routine.durationSec > 0 ? (Math.min(routine.durationSec, Math.max(0, routine.durationSec - remainingSec)) / routine.durationSec) * 100 : 0;
+
     return result;
   }, [template.steps, routine.durationSec, remainingSec]);
 
@@ -224,7 +217,7 @@ export const RoutineTimer = ({
           </span>
           {activeStep && (
             <span className="text-xs text-muted-foreground" aria-live="polite">
-              Étape actuelle : {activeStep.title} ({formatTime(activeStepRemaining)} restantes)
+              Étape actuelle : {activeStep.title} ({formatTime(activeStepRemaining)})
             </span>
           )}
         </header>
@@ -279,24 +272,20 @@ export const RoutineTimer = ({
                 </span>
               </AccordionTrigger>
               <AccordionContent className="rounded-2xl bg-background px-4 py-3 text-sm leading-relaxed text-foreground">
-                {template.steps && template.steps.length > 0 ? (
+                {stepStates && stepStates.length > 0 ? (
                   <ol className="space-y-3">
                     {stepStates.map((step, index) => {
                       const isActive = activeStep && activeStep.title === step.title;
                       const isCompleted = elapsedSec >= step.end;
-                      const stepElapsed = isActive ? (activeStepElapsed ?? 0) : isCompleted ? step.scaledDurationSec : 0;
-                      const stepRemaining = isActive ? (activeStepRemaining ?? 0) : isCompleted ? 0 : step.scaledDurationSec;
+                      const stepElapsed = isActive ? activeStepElapsed : isCompleted ? step.scaledDurationSec : 0;
+                      const stepRemaining = isActive ? activeStepRemaining : isCompleted ? 0 : step.scaledDurationSec;
 
                       return (
                         <li
-                          key={index}
+                          key={step.id ?? index}
                           className={
                             'rounded-2xl border px-4 py-3 transition-colors ' +
-                            (isActive
-                              ? 'border-primary bg-primary/10'
-                              : isCompleted
-                              ? 'border-border/70 bg-background'
-                              : 'border-border/60 bg-background/60')
+                            (isActive ? 'border-primary bg-primary/10' : isCompleted ? 'border-border/70 bg-background' : 'border-border/60 bg-background/60')
                           }
                         >
                           <div className="flex items-start justify-between gap-3">
@@ -307,12 +296,12 @@ export const RoutineTimer = ({
                               {step.description && <p className="mt-1 text-xs text-muted-foreground">{step.description}</p>}
                             </div>
                             <div className="text-right text-xs font-medium text-muted-foreground">
-                              <p>Durée : {Math.round(step.scaledDurationSec / 60)} min</p>
+                              <p>Durée : {Math.round((step.scaledDurationSec ?? 0) / 60)} min</p>
                               <p>
                                 {isCompleted
                                   ? 'Terminé'
                                   : isActive
-                                  ? `${formatTime(stepElapsed)} / ${formatTime(step.scaledDurationSec)}`
+                                  ? `${formatTime(stepElapsed)} / ${formatTime(step.scaledDurationSec ?? 0)}`
                                   : `${formatTime(stepRemaining)}`}
                               </p>
                             </div>
@@ -348,11 +337,7 @@ export const RoutineTimer = ({
             </AccordionItem>
           </Accordion>
 
-          <Button
-            variant="outline"
-            disabled
-            className="w-full justify-center gap-2 rounded-2xl border-dashed py-3 text-sm text-muted-foreground"
-          >
+          <Button variant="outline" disabled className="w-full justify-center gap-2 rounded-2xl border-dashed py-3 text-sm text-muted-foreground">
             <Headphones className="h-4 w-4" aria-hidden="true" />
             Télécharger l’audio (bientôt)
           </Button>
@@ -371,10 +356,7 @@ export const RoutineTimer = ({
               <AlertDialogCancel className="flex-1 rounded-xl border-muted-foreground/20" onClick={onResume}>
                 Reprendre
               </AlertDialogCancel>
-              <AlertDialogAction
-                className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={onConfirmStopComplete}
-              >
+              <AlertDialogAction className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" onClick={onConfirmStopComplete}>
                 Terminer
               </AlertDialogAction>
               <Button variant="ghost" className="flex-1 rounded-xl text-destructive hover:text-destructive" onClick={onConfirmStopAbandon}>
@@ -395,10 +377,7 @@ export const RoutineTimer = ({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex flex-col gap-3">
-              <AlertDialogAction
-                className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-base"
-                onClick={onConfirmCompleted}
-              >
+              <AlertDialogAction className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-base" onClick={onConfirmCompleted}>
                 Marquer comme complétée
               </AlertDialogAction>
               <Button variant="outline" className="w-full rounded-xl py-3 text-base" onClick={onRestart}>

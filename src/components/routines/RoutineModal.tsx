@@ -44,14 +44,13 @@ export const RoutineModal = ({ open, onOpenChange, template, onConfirm }: Routin
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="max-w-sm rounded-2xl p-6">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-xl font-semibold">
-            Lancer la routine ?
-          </AlertDialogTitle>
+          <AlertDialogTitle className="text-xl font-semibold">Lancer la routine ?</AlertDialogTitle>
           <AlertDialogDescription className="text-muted-foreground">
             {durationOptions.length > 0
               ? 'Choisis la durée qui te convient : tu pourras mettre le minuteur en pause ou l’arrêter quand tu veux.'
               : 'Cette routine dure 10 minutes. Tu pourras la mettre en pause ou l’arrêter.'}
           </AlertDialogDescription>
+
           {template && (
             <p className="text-sm text-muted-foreground/90 mt-3">
               Routine sélectionnée : <span className="font-medium text-foreground">{template.title}</span>
@@ -80,10 +79,9 @@ export const RoutineModal = ({ open, onOpenChange, template, onConfirm }: Routin
             </div>
           )}
         </AlertDialogHeader>
+
         <AlertDialogFooter className="flex gap-2 sm:space-x-0">
-          <AlertDialogCancel className="flex-1 rounded-xl border-muted-foreground/20">
-            Annuler
-          </AlertDialogCancel>
+          <AlertDialogCancel className="flex-1 rounded-xl border-muted-foreground/20">Annuler</AlertDialogCancel>
           <AlertDialogAction
             className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={() => onConfirm(selectedDuration)}
@@ -96,4 +94,3 @@ export const RoutineModal = ({ open, onOpenChange, template, onConfirm }: Routin
     </AlertDialog>
   );
 };
-

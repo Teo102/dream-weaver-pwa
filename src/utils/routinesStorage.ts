@@ -14,7 +14,8 @@ export interface RoutineTemplate {
   title: string;
   previewText: string;
   scriptFileName: string;
-  durations?: number[]; // in seconds (optional on type level for backward compatibility)
+  // optional on type level to stay backward compatible with older persisted data
+  durations?: number[]; // in seconds
   steps?: RoutineStep[];
 }
 

@@ -12,7 +12,7 @@ import { Routines } from "./pages/Routines";
 import { Journal } from "./pages/Journal";
 import { Achievements } from "./pages/Achievements";
 import { Onboarding } from "./pages/Onboarding";
-import { SleepEducation } from "./pages/SleepEducation";
+import { ComprendreSommeil } from "./pages/ComprendreSommeil";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,7 +32,7 @@ const App = () => (
           <Route path="/routines" element={<Layout><Routines /></Layout>} />
           <Route path="/journal" element={<Layout><Journal /></Layout>} />
           <Route path="/achievements" element={<Layout><Achievements /></Layout>} />
-          <Route path="/sleep-education" element={<Layout><SleepEducation /></Layout>} />
+          <Route path="/comprendre-sommeil" element={<Layout><ComprendreSommeil /></Layout>} />
           <Route path="/settings" element={<Layout><div className="p-6 text-center text-muted-foreground">Réglages à venir</div></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
