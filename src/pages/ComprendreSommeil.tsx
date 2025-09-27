@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Sparkles, BookOpen, Clock, Heart, Bed, Feather, ListChecks } from 'lucide-react';
@@ -17,80 +17,122 @@ const tableOfContents = [
   { id: 'article-5', label: '5 — 10 conseils rapides pour mieux dormir ce soir' },
 ];
 
-const articles = [
+type CTA = { to: string; label: string; variant: 'pill' | 'outline' };
+
+type Article = {
+  id: string;
+  title: string;
+  icon: any;
+  paragraphs: React.ReactNode[];
+  ctas: CTA[];
+  summary: string;
+};
+
+const articles: Article[] = [
   {
     id: 'article-1',
     title: 'Qu’est-ce que le sommeil ? 💤',
     icon: Bed,
     paragraphs: [
-      "Le sommeil est un besoin biologique essentiel : c’est le moment où ton corps et ton cerveau se réparent, consolident la mémoire et régulent les émotions. On dort en plusieurs phases qui ont chacune un rôle (récupération physique, consolidation mentale, rêves).",
-      "Même sans entrer dans la science, garder une routine régulière et un environnement calme aide énormément. Le sommeil n’est pas juste “ne pas être réveillé” — c’est un processus actif qui se construit chaque soir.",
+      <>
+        Le sommeil est un besoin biologique fondamental. <strong>Pendant la nuit</strong>, ton corps répare les tissus, ton cerveau
+        trie les informations de la journée et tes émotions se régulent — tout cela activement, pas simplement «être éteint».
+      </>,
+      <>
+        En pratique : une bonne nuit aide la mémoire, la récupération et l’humeur. <em>Prendre le sommeil au sérieux</em> signifie organiser
+        des petites habitudes quotidiennes (heure régulière, baisse des stimulations avant de dormir).
+      </>,
     ],
     ctas: [
-      { to: '/routines', label: 'Voir les Routines', variant: 'pill' as const },
-      { to: '/calculator', label: 'Ouvrir le Calculateur', variant: 'outline' as const },
+      { to: '/routines', label: 'Voir les Routines', variant: 'pill' },
+      { to: '/calculator', label: 'Ouvrir le Calculateur', variant: 'outline' },
     ],
-    summary: 'Comprendre ça, c’est accepter de traiter le sommeil comme une habitude.',
+    summary: 'Le sommeil, c’est de la récupération planifiée — traite-le comme une habitude précieuse.',
   },
   {
     id: 'article-2',
     title: 'Les cycles de sommeil et pourquoi ils comptent 🔁',
     icon: Clock,
     paragraphs: [
-      "Le sommeil fonctionne en cycles (environ 90 minutes) composés de sommeil léger, profond puis REM (où se produisent les rêves). Ces cycles se répètent 4 à 6 fois selon la durée totale de sommeil.",
-      "Chaque phase a un rôle : le profond pour la récupération physique, le REM pour la consolidation émotionnelle et mémoire. Respecter la durée et la régularité permet d’optimiser ces phases naturellement.",
+      <>
+        Le sommeil s’organise en cycles d'environ <strong>90 minutes</strong>. Chaque cycle contient des phases : sommeil léger → profond → REM (rêves).
+        On enchaîne généralement 4 à 6 cycles par nuit.
+      </>,
+      <>
+        Pourquoi c’est utile : <strong>la qualité compte autant que la quantité</strong>. Respecter les cycles (et la régularité) aide à se réveiller plus frais
+        et à tirer le meilleur de la consolidation mémoire et de la récupération physique.
+      </>,
     ],
-    ctas: [{ to: '/calculator', label: 'Utiliser le Calculateur', variant: 'pill' as const }],
-    summary: 'Utiliser le calculateur pour planifier un réveil en fin de cycle augmente les chances de se lever frais.',
+    ctas: [{ to: '/calculator', label: 'Utiliser le Calculateur', variant: 'pill' }],
+    summary: 'Planifier autour des cycles augmente les chances d’un réveil plus agréable.',
   },
   {
     id: 'article-3',
     title: 'Pourquoi il vaut mieux se réveiller en fin de cycle ⏰',
     icon: Sparkles,
     paragraphs: [
-      "Se réveiller en plein sommeil profond provoque lourdeur, confusion et fatigue (le fameux « grogginess »). Si l’alarme sonne à la fin d’un cycle, on est souvent dans une phase plus légère et le réveil est plus naturel.",
-      "C’est pourquoi le calculateur propose des heures de coucher / réveil basées sur ces cycles (en ajoutant un délai d’endormissement si besoin).",
+      <>
+        Se réveiller pendant le sommeil profond provoque souvent de la confusion et une sensation de lourdeur («grogginess»).
+        À la fin d’un cycle, on est plutôt en sommeil léger — c’est le meilleur moment pour se lever naturellement.
+      </>,
+      <>
+        Astuce pratique : utilise le calculateur pour estimer des heures de coucher/réveil basées sur ces cycles (ajoute un petit délai
+        d’endormissement si nécessaire). Résultat → réveils plus doux et journées plus productives.
+      </>,
     ],
     ctas: [
-      { to: '/calculator', label: 'Aller au Calculateur', variant: 'pill' as const },
-      { to: '/routines', label: 'Programmer une Routine', variant: 'outline' as const },
+      { to: '/calculator', label: 'Aller au Calculateur', variant: 'pill' },
+      { to: '/routines', label: 'Programmer une Routine', variant: 'outline' },
     ],
-    summary: 'Le réveil intelligent n’est pas magique, il calcule les cycles.',
+    summary: 'Un réveil intelligent, c’est aligner l’alarme sur la bonne phase du cycle.',
   },
   {
     id: 'article-4',
     title: 'Routines du soir efficaces (templates) 🧘',
     icon: Feather,
     paragraphs: [
-      'Une routine courte et répétée prépare ton corps : baisse de lumière, déconnexion des écrans, exercices de respiration, petit étirement, journal rapide. Voici 3 templates simples à intégrer :',
-      'Respiration relax (10 min) : installation, respiration cohérente, ancrage.',
-      'Déconnexion numérique (10–15 min) : ranger les écrans, tamiser la lumière, écrire 3 pensées à laisser.',
-      'Étirements doux (10–20 min) : nuque, épaules, dos, jambes, relaxation finale.',
+      <>
+        Une routine courte et répétée prépare le corps et l’esprit. Quelques éléments à garder : <strong>baisse de lumière</strong>, <strong>déconnexion</strong>,
+        respiration douce et étirements légers.
+      </>,
+      <>
+        Exemples simples :
+        <ul className="mt-2 ml-5 list-disc">
+          <li><strong>Respiration relax (10 min)</strong> — installation, respiration cohérente, ancrage.</li>
+          <li><strong>Déconnexion numérique (10–15 min)</strong> — ranger les écrans, tamiser la lumière, écrire 3 pensées à laisser.</li>
+          <li><strong>Étirements doux (10–20 min)</strong> — nuque, épaules, dos, jambes, relaxation finale.</li>
+        </ul>
+      </>,
     ],
-    ctas: [{ to: '/routines', label: 'Démarrer une Routine', variant: 'pill' as const }],
-    summary: 'Les routines te rendent plus constant — lance-en une dès ce soir.',
+    ctas: [{ to: '/routines', label: 'Démarrer une Routine', variant: 'pill' }],
+    summary: 'Les routines rendent le sommeil plus prévisible — commence par une courte séquence ce soir.',
   },
   {
     id: 'article-5',
     title: '10 conseils rapides pour mieux dormir ce soir 🌟',
     icon: Heart,
     paragraphs: [
-      'Éteins les écrans 30–60 min avant le coucher.',
-      'Baisse la lumière — favorise la mélatonine.',
-      'Respire lentement 4-6 pendant 3 min.',
-      'Pas de café après 16h (ajuste selon toi).',
-      'Température chambre : frais et confortable.',
-      'Routine régulière : même heure de coucher.',
-      'Petite lecture papier plutôt qu’écran.',
-      'Sieste courte : 20 min max.',
-      'Limite alcool avant le coucher.',
-      'Note 3 choses positives avant de dormir.',
+      <>
+        Voici <strong>10 actions simples</strong> à essayer — prends-en 1 ou 2 et observe la différence :
+        <ol className="mt-2 ml-5 list-decimal">
+          <li>Éteins les écrans 30–60 min avant le coucher.</li>
+          <li>Baisse la lumière — laisse la mélatonine faire son travail.</li>
+          <li>Respire lentement (4–6) pendant 3 minutes pour calmer le système nerveux.</li>
+          <li>Évite le café après ~16h (ajuste selon ta sensibilité).</li>
+          <li>Garde la chambre fraîche et confortable.</li>
+          <li>Respecte une heure de coucher régulière.</li>
+          <li>Privilégie une lecture papier calme plutôt qu’un écran.</li>
+          <li>Sieste courte seulement (≤ 20 min).</li>
+          <li>Limite l’alcool juste avant le coucher.</li>
+          <li>Écris 3 choses positives avant d’éteindre la lumière.</li>
+        </ol>
+      </>,
     ],
     ctas: [
-      { to: '/routines', label: 'Voir Routines', variant: 'pill' as const },
-      { to: '/journal', label: 'Ouvrir Journal', variant: 'outline' as const },
+      { to: '/routines', label: 'Voir Routines', variant: 'pill' },
+      { to: '/journal', label: 'Ouvrir Journal', variant: 'outline' },
     ],
-    summary: 'Applique un ou deux conseils ce soir.',
+    summary: 'Choisis un ou deux conseils ce soir — la constance paie plus que la perfection.',
   },
 ];
 
@@ -132,14 +174,8 @@ export const ComprendreSommeil = () => {
                 Les bases simples et pratiques pour mieux dormir — cycles, routines et conseils applicables ce soir.
               </p>
             </div>
-            {/* Hero — dégradé à la place de l'image */}
-            <div
-              role="img"
-              aria-label="Illustration apaisante de la nuit"
-              className="hidden h-32 w-full max-w-xs flex-none rounded-3xl md:block
-                         bg-gradient-to-br from-[#7C62FF]/80 via-[#B8A5FF]/40 to-[#0B0712]/60
-                         shadow-md"
-            />
+            {/* AUCUNE IMAGE / AUCUNE ILLUSTRATION : on ne met rien ici intentionnellement */}
+            <div className="hidden md:block w-36" aria-hidden="true" />
           </div>
         </section>
 
@@ -178,17 +214,10 @@ export const ComprendreSommeil = () => {
                   </div>
                 </header>
 
-                {/* Dégradé à la place d'une image illustrative */}
-                <div
-                  role="img"
-                  aria-label={`Illustration pour ${article.title}`}
-                  className="mt-4 h-44 w-full overflow-hidden rounded-2xl border border-border/50
-                             bg-gradient-to-r from-[#6C4FFF]/70 via-[#A58FFF]/30 to-transparent"
-                />
-
+                {/* AUCUN visuel ici — contenu textuel uniquement */}
                 <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">
                   {article.paragraphs.map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
+                    <div key={index}>{paragraph}</div>
                   ))}
                 </div>
 
