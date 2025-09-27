@@ -1,0 +1,10 @@
+Routine "Déconnexion numérique" — durée totale 10 minutes
+
+0:00-1:00  Pose ton téléphone en mode avion et range les écrans hors de vue.
+1:00-2:30  Prends trois respirations profondes pour marquer la transition vers le calme.
+2:30-4:00  Fais une courte revue de la journée : cite mentalement trois choses positives.
+4:00-5:30  Note dans un carnet les idées à garder pour demain afin de libérer ton esprit.
+5:30-6:30  Étire doucement les poignets et les mains pour relâcher la tension accumulée.
+6:30-8:00  Bois quelques gorgées d'eau ou d'une tisane tiède, savoure chaque sensation.
+8:00-9:00  Diminue progressivement la luminosité de la pièce, ajuste tes lumières d'ambiance.
+9:00-10:00  Assieds-toi confortablement et laisse simplement le silence s'installer avant d'aller au lit.

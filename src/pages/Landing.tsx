@@ -173,7 +173,7 @@ export const Landing = () => {
           <p className="text-muted-foreground mb-6">
             Articles courts et conseils pratiques pour mieux dormir.
           </p>
-          <Link to="/sleep-education">
+          <Link to="/comprendre-sommeil">
             <Button variant="outline" className="border-primary/20 hover:border-primary/40">
               En savoir plus
             </Button>
