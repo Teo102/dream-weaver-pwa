@@ -35,8 +35,7 @@ const articles = [
       { to: '/routines', label: 'Voir les Routines', variant: 'pill' as const },
       { to: '/calculator', label: 'Ouvrir le Calculateur', variant: 'outline' as const },
     ],
-    summary:
-      'Comprendre ça, c’est accepter de traiter le sommeil comme une habitude.',
+    summary: 'Comprendre ça, c’est accepter de traiter le sommeil comme une habitude.',
   },
   {
     id: 'article-2',
@@ -51,11 +50,8 @@ const articles = [
       "Le sommeil fonctionne en cycles (environ 90 minutes) composés de sommeil léger, profond puis REM (où se produisent les rêves). Ces cycles se répètent 4 à 6 fois selon la durée totale de sommeil.",
       "Chaque phase a un rôle : le profond pour la récupération physique, le REM pour la consolidation émotionnelle et mémoire. Respecter la durée et la régularité permet d’optimiser ces phases naturellement.",
     ],
-    ctas: [
-      { to: '/calculator', label: 'Utiliser le Calculateur', variant: 'pill' as const },
-    ],
-    summary:
-      'Utiliser le calculateur pour planifier un réveil en fin de cycle augmente les chances de se lever frais.',
+    ctas: [{ to: '/calculator', label: 'Utiliser le Calculateur', variant: 'pill' as const }],
+    summary: 'Utiliser le calculateur pour planifier un réveil en fin de cycle augmente les chances de se lever frais.',
   },
   {
     id: 'article-3',
@@ -91,9 +87,7 @@ const articles = [
       'Déconnexion numérique (10–15 min) : ranger les écrans, tamiser la lumière, écrire 3 pensées à laisser.',
       'Étirements doux (10–20 min) : nuque, épaules, dos, jambes, relaxation finale.',
     ],
-    ctas: [
-      { to: '/routines', label: 'Démarrer une Routine', variant: 'pill' as const },
-    ],
+    ctas: [{ to: '/routines', label: 'Démarrer une Routine', variant: 'pill' as const }],
     summary: 'Les routines te rendent plus constant — lance-en une dès ce soir.',
   },
   {
@@ -209,6 +203,7 @@ export const ComprendreSommeil = () => {
                     <h2 className="text-2xl font-semibold text-foreground md:text-3xl">{article.title}</h2>
                   </div>
                 </header>
+
                 <figure className="mt-4 overflow-hidden rounded-2xl border border-border/50 bg-muted/30">
                   <img
                     src={article.image.src}
@@ -218,11 +213,13 @@ export const ComprendreSommeil = () => {
                   />
                   <figcaption className="sr-only">Illustration : {article.image.name}</figcaption>
                 </figure>
+
                 <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">
                   {article.paragraphs.map((paragraph, index) => (
                     <p key={index}>{paragraph}</p>
                   ))}
                 </div>
+
                 <footer className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <p className="text-sm font-medium text-foreground">{article.summary}</p>
                   <div className="flex flex-wrap gap-3">
