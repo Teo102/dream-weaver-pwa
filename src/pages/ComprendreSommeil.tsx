@@ -22,11 +22,7 @@ const articles = [
     id: 'article-1',
     title: 'Qu’est-ce que le sommeil ? 💤',
     icon: Bed,
-    image: {
-      src: '/images/comprendre-sommeil/article-1-quest-ce-que-le-sommeil.svg',
-      alt: 'Icône violette avec un point d’interrogation entouré d’étoiles.',
-      name: 'article-1-quest-ce-que-le-sommeil.svg',
-    },
+   ,
     paragraphs: [
       "Le sommeil est un besoin biologique essentiel : c’est le moment où ton corps et ton cerveau se réparent, consolident la mémoire et régulent les émotions. On dort en plusieurs phases qui ont chacune un rôle (récupération physique, consolidation mentale, rêves).",
       "Même sans entrer dans la science, garder une routine régulière et un environnement calme aide énormément. Le sommeil n’est pas juste “ne pas être réveillé” — c’est un processus actif qui se construit chaque soir.",
@@ -41,11 +37,7 @@ const articles = [
     id: 'article-2',
     title: 'Les cycles de sommeil et pourquoi ils comptent 🔁',
     icon: Clock,
-    image: {
-      src: '/images/comprendre-sommeil/article-2-cycles.svg',
-      alt: 'Représentation fluide des cycles de sommeil sur fond nocturne.',
-      name: 'article-2-cycles.svg',
-    },
+  
     paragraphs: [
       "Le sommeil fonctionne en cycles (environ 90 minutes) composés de sommeil léger, profond puis REM (où se produisent les rêves). Ces cycles se répètent 4 à 6 fois selon la durée totale de sommeil.",
       "Chaque phase a un rôle : le profond pour la récupération physique, le REM pour la consolidation émotionnelle et mémoire. Respecter la durée et la régularité permet d’optimiser ces phases naturellement.",
@@ -57,11 +49,7 @@ const articles = [
     id: 'article-3',
     title: 'Pourquoi il vaut mieux se réveiller en fin de cycle ⏰',
     icon: Sparkles,
-    image: {
-      src: '/images/comprendre-sommeil/article-3-fin-de-cycle.svg',
-      alt: 'Cadran lumineux mettant en avant 90 minutes de sommeil.',
-      name: 'article-3-fin-de-cycle.svg',
-    },
+    
     paragraphs: [
       "Se réveiller en plein sommeil profond provoque lourdeur, confusion et fatigue (le fameux « grogginess »). Si l’alarme sonne à la fin d’un cycle, on est souvent dans une phase plus légère et le réveil est plus naturel.",
       "C’est pourquoi le calculateur propose des heures de coucher / réveil basées sur ces cycles (en ajoutant un délai d’endormissement si besoin).",
@@ -76,11 +64,7 @@ const articles = [
     id: 'article-4',
     title: 'Routines du soir efficaces (templates) 🧘',
     icon: Feather,
-    image: {
-      src: '/images/comprendre-sommeil/article-4-routines.svg',
-      alt: 'Trois cartes colorées pour illustrer des routines du soir.',
-      name: 'article-4-routines.svg',
-    },
+   
     paragraphs: [
       'Une routine courte et répétée prépare ton corps : baisse de lumière, déconnexion des écrans, exercices de respiration, petit étirement, journal rapide. Voici 3 templates simples à intégrer :',
       'Respiration relax (10 min) : installation, respiration cohérente, ancrage.',
@@ -94,11 +78,7 @@ const articles = [
     id: 'article-5',
     title: '10 conseils rapides pour mieux dormir ce soir 🌟',
     icon: Heart,
-    image: {
-      src: '/images/comprendre-sommeil/article-5-conseils.svg',
-      alt: 'Typographie lumineuse “Mieux s’endormir — simple et efficace”.',
-      name: 'article-5-conseils.svg',
-    },
+    
     paragraphs: [
       'Éteins les écrans 30–60 min avant le coucher.',
       'Baisse la lumière — favorise la mélatonine.',
@@ -203,16 +183,6 @@ export const ComprendreSommeil = () => {
                     <h2 className="text-2xl font-semibold text-foreground md:text-3xl">{article.title}</h2>
                   </div>
                 </header>
-
-                <figure className="mt-4 overflow-hidden rounded-2xl border border-border/50 bg-muted/30">
-                  <img
-                    src={article.image.src}
-                    alt={article.image.alt}
-                    className="h-44 w-full object-cover"
-                    loading="lazy"
-                  />
-                  <figcaption className="sr-only">Illustration : {article.image.name}</figcaption>
-                </figure>
 
                 <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">
                   {article.paragraphs.map((paragraph, index) => (
