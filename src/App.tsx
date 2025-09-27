@@ -8,6 +8,7 @@ import { Landing } from "./pages/Landing";
 import { Home } from "./pages/Home";
 import { Calculator } from "./pages/Calculator";
 import { Routine } from "./pages/Routine";
+import { Routines } from "./pages/Routines";
 import { Journal } from "./pages/Journal";
 import { Achievements } from "./pages/Achievements";
 import { Onboarding } from "./pages/Onboarding";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/onboarding" element={<Layout><Onboarding /></Layout>} />
           <Route path="/calculator" element={<Layout><Calculator /></Layout>} />
           <Route path="/routine" element={<Layout><Routine /></Layout>} />
+          <Route path="/routines" element={<Layout><Routines /></Layout>} />
           <Route path="/journal" element={<Layout><Journal /></Layout>} />
           <Route path="/achievements" element={<Layout><Achievements /></Layout>} />
           <Route path="/sleep-education" element={<Layout><SleepEducation /></Layout>} />

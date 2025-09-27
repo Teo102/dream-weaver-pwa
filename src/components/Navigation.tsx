@@ -1,9 +1,10 @@
-import { Home, Calculator, BookOpen, Trophy, Settings } from 'lucide-react';
+import { Home, Calculator, BookOpen, Trophy, Settings, Timer } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
+  { href: '/routines', icon: Timer, label: 'Routines' },
   { href: '/calculator', icon: Calculator, label: 'Calculator' },
   { href: '/journal', icon: BookOpen, label: 'Journal' },
   { href: '/achievements', icon: Trophy, label: 'Achievements' },
