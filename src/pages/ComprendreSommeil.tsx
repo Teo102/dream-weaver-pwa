@@ -157,15 +157,15 @@ export const ComprendreSommeil = () => {
                 Les bases simples et pratiques pour mieux dormir — cycles, routines et conseils applicables ce soir.
               </p>
             </div>
-            <figure className="hidden w-full max-w-xs flex-none md:block">
-              <img
-                src="/images/comprendre-sommeil/hero.svg"
-                alt="Illustration onirique violette avec constellation et horizon doux."
-                className="h-32 w-full rounded-3xl object-cover shadow-md"
-                loading="lazy"
-              />
-              <figcaption className="sr-only">Illustration : hero.svg</figcaption>
-            </figure>
+            {/* Hero — dégradé à la place de l'image */}
+<div
+  role="img"
+  aria-label="Illustration apaisante de la nuit"
+  className="hidden h-32 w-full max-w-xs flex-none rounded-3xl md:block
+             bg-gradient-to-br from-[#7C62FF]/80 via-[#B8A5FF]/40 to-[#0B0712]/60
+             shadow-md"
+></div>
+
           </div>
         </section>
 
