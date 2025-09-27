@@ -8,7 +8,7 @@ interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
-  const hideNavigation = ['/routine', '/onboarding'].includes(location.pathname);
+  const hideNavigation = ['/', '/routine', '/onboarding'].includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

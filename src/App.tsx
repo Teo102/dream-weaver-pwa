@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { Landing } from "./pages/Landing";
 import { Home } from "./pages/Home";
 import { Calculator } from "./pages/Calculator";
 import { Routine } from "./pages/Routine";
@@ -21,19 +22,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/calculator" element={<Calculator />} />
-            <Route path="/routine" element={<Routine />} />
-            <Route path="/journal" element={<Journal />} />
-            <Route path="/achievements" element={<Achievements />} />
-            <Route path="/sleep-education" element={<SleepEducation />} />
-            <Route path="/settings" element={<div className="p-6 text-center text-muted-foreground">Réglages à venir</div>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/app" element={<Layout><Home /></Layout>} />
+          <Route path="/onboarding" element={<Layout><Onboarding /></Layout>} />
+          <Route path="/calculator" element={<Layout><Calculator /></Layout>} />
+          <Route path="/routine" element={<Layout><Routine /></Layout>} />
+          <Route path="/journal" element={<Layout><Journal /></Layout>} />
+          <Route path="/achievements" element={<Layout><Achievements /></Layout>} />
+          <Route path="/sleep-education" element={<Layout><SleepEducation /></Layout>} />
+          <Route path="/settings" element={<Layout><div className="p-6 text-center text-muted-foreground">Réglages à venir</div></Layout>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
