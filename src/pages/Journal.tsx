@@ -277,3 +277,5 @@ export const Journal = () => {
     </div>
   );
 };
+
+export default Journal;

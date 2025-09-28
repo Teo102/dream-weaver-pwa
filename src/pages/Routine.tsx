@@ -233,3 +233,5 @@ export const Routine = () => {
     </div>
   );
 };
+
+export default Routine;

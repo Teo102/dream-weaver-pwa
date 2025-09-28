@@ -269,3 +269,5 @@ export const ComprendreSommeil = () => {
   );
 };
 
+
+export default ComprendreSommeil;

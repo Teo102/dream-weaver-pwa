@@ -147,3 +147,5 @@ export const Onboarding = () => {
     </div>
   );
 };
+
+export default Onboarding;

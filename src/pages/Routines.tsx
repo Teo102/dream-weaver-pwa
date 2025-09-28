@@ -44,7 +44,6 @@ export const Routines = () => {
   // initial remaining: if templates include durations, use first duration, otherwise fallback
   const initialDuration =
     defaultRoutineTemplates[0]?.durations?.[0] ??
-    defaultRoutineTemplates[0]?.durationSec ??
     ROUTINE_DURATION;
 
   const [remainingSec, setRemainingSec] = useState<number>(initialDuration);
@@ -334,3 +333,5 @@ export const Routines = () => {
     </div>
   );
 };
+
+export default Routines;
