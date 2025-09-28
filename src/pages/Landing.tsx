@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -286,3 +287,5 @@ export const Landing = () => {
     </div>
   );
 };
+
+export default Landing;

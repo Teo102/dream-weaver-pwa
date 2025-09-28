@@ -1,3 +1,4 @@
+ codex/add-sleep-reminder-features-44beg3
 <svg width="400" height="260" viewBox="0 0 400 260" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="paint0_linear" x1="50" y1="30" x2="360" y2="220" gradientUnits="userSpaceOnUse">
@@ -24,10 +25,53 @@
     <path d="M224 70L234 82" stroke-width="2.5"/>
     <path d="M274 120L288 132" stroke-width="2.5"/>
   </g>
+
+<!-- public/images/comprendre-sommeil/article-hero-responsive.svg -->
+<svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Illustration apaisante">
+  <defs>
+    <linearGradient id="paint0_linear" x1="50" y1="30" x2="360" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C62FF" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#CDBEFF" stop-opacity="0.4"/>
+    </linearGradient>
+    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(310 70) rotate(130) scale(160 140)">
+      <stop offset="0" stop-color="#B8A5FF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#F3EEFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="paint2_linear" x1="40" y1="210" x2="200" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4C3FB3" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#AEA1FF" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- fond -->
+  <rect x="0" y="0" width="400" height="260" rx="48" fill="#0F0B24"/>
+  <!-- couche principale (semi-transparente pour effet) -->
+  <rect x="18" y="18" width="364" height="224" rx="40" fill="url(#paint0_linear)" opacity="0.6"/>
+  <!-- halo radial -->
+  <circle cx="310" cy="70" r="110" fill="url(#paint1_radial)"/>
+  <!-- forme ondulée -->
+  <path d="M120 190C150 150 210 140 250 160C290 180 320 200 340 210C360 220 370 225 370 225L50 225C50 225 80 230 120 190Z" fill="url(#paint2_linear)"/>
+
+  <!-- étoiles/traits -->
+  <g opacity="0.85" stroke="#F6F4FF" stroke-linecap="round" stroke-width="2.5" fill="none">
+    <path d="M96 86L108 90"/>
+    <path d="M142 54L144 70"/>
+    <path d="M176 110L194 108"/>
+    <path d="M224 70L234 82"/>
+    <path d="M274 120L288 132"/>
+  </g>
+
+  <!-- points -->
+ main
   <circle cx="94" cy="84" r="4" fill="#FFFFFF"/>
   <circle cx="138" cy="52" r="5" fill="#FFFFFF"/>
   <circle cx="172" cy="108" r="3" fill="#FFFFFF"/>
   <circle cx="220" cy="68" r="4" fill="#FFFFFF"/>
   <circle cx="270" cy="118" r="3" fill="#FFFFFF"/>
+ codex/add-sleep-reminder-features-44beg3
+
+
+  <!-- ombre / plan de premier plan -->
+ main
   <path d="M110 205C129 195 160 190 188 196C214 201 232 212 244 220L170 220C150 220 130 215 110 205Z" fill="#21194A" opacity="0.65"/>
 </svg>

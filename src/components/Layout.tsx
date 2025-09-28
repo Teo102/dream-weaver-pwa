@@ -1,7 +1,16 @@
+ codex/add-sleep-reminder-features-44beg3
 import { ReactNode, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navigation } from './Navigation';
 import { loadActiveRoutine } from '@/utils/routinesStorage';
+
+import React, { useState } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import { Navigation } from './Navigation';
+import { loadActiveRoutine } from '@/utils/routinesStorage';
+import AuthModal from '@/components/AuthModal';
+ main
 
 interface LayoutProps {
   children?: ReactNode;
@@ -10,6 +19,10 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const [hasActiveRoutine, setHasActiveRoutine] = useState(false);
+ codex/add-sleep-reminder-features-44beg3
+
+  const [authOpen, setAuthOpen] = useState(false);
+ main
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -39,10 +52,17 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <main className="pb-20">
-        {children || <Outlet />}
-      </main>
+      <header>
+        {/* ton header actuel */}
+        <button onClick={() => setAuthOpen(true)} className="btn">
+          Se connecter / S'inscrire
+        </button>
+      </header>
+
+      <main className="pb-20">{children || <Outlet />}</main>
       {!hideNavigation && <Navigation />}
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} onSuccessRedirectTo="/app" />
     </div>
   );
 };

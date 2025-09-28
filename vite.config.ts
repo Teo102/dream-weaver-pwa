@@ -1,3 +1,4 @@
+ codex/add-sleep-reminder-features-44beg3
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -27,4 +28,18 @@ export default defineConfig(async ({ mode }) => {
       },
     },
   };
+
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+ main
 });

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import { Clock, Calendar, Trophy, Moon, Star, ArrowRight, Brain } from 'lucide-r
 import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentStreak, getRecentLogs, type SleepLog } from '@/utils/storage';
 
-export const Home = () => {
+const Home = () => {
   const navigate = useNavigate();
   const [streak, setStreak] = useState(0);
   const [recentLogs, setRecentLogs] = useState<SleepLog[]>([]);
@@ -186,3 +187,5 @@ export const Home = () => {
     </div>
   );
 };
+
+export default Home;
