@@ -1,4 +1,7 @@
+ codex/add-sleep-reminder-features-44beg3
+
 // src/components/Navigation.tsx
+ main
 import { Home, Calculator, BookOpen, Trophy, Settings, Timer, Sparkles } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';

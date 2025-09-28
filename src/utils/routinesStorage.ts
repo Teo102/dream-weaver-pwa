@@ -1,7 +1,20 @@
+ codex/add-sleep-reminder-features-44beg3
+
 // src/utils/routinesStorage.ts
+ main
 export const ROUTINE_TEMPLATES_KEY = 'routinesTemplates';
 export const ACTIVE_ROUTINE_KEY = 'activeRoutine';
 export const COMPLETED_ROUTINES_KEY = 'completedRoutines';
+
+ codex/add-sleep-reminder-features-44beg3
+const getStorage = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  try {
+    return window.localStorage;
+  } catch (error) {
+    console.error('Accès au localStorage impossible', error);
 
 const safeLocalStorage = (): Storage | null => {
   if (typeof window === 'undefined') return null;
@@ -9,6 +22,7 @@ const safeLocalStorage = (): Storage | null => {
     return window.localStorage;
   } catch (err) {
     console.error('Accès au localStorage impossible', err);
+ main
     return null;
   }
 };
@@ -25,9 +39,14 @@ export interface RoutineTemplate {
   title: string;
   previewText: string;
   scriptFileName: string;
+ codex/add-sleep-reminder-features-44beg3
+  durations: number[]; // in seconds
+  steps: RoutineStep[];
+
   // optional at type level to keep compatibility with older persisted data
   durations?: number[]; // in seconds
   steps?: RoutineStep[];
+ main
 }
 
 export interface ActiveRoutineStorage {
@@ -308,6 +327,16 @@ export const defaultRoutineTemplates: RoutineTemplate[] = [
   },
 ];
 
+ codex/add-sleep-reminder-features-44beg3
+const isValidTemplate = (template: RoutineTemplate | (RoutineTemplate & { durations?: number[]; steps?: RoutineStep[] })) => {
+  return (
+    typeof template?.id === 'string' &&
+    typeof template?.title === 'string' &&
+    Array.isArray(template?.durations) &&
+    template.durations.length > 0 &&
+    Array.isArray(template?.steps) &&
+    template.steps.length > 0
+
 const isValidTemplate = (
   template: unknown
 ): template is RoutineTemplate & { durations: number[]; steps: RoutineStep[] } => {
@@ -330,10 +359,23 @@ const isValidTemplate = (
         typeof s.description === 'string' &&
         typeof s.durationSec === 'number'
     )
+ main
   );
 };
 
 export const loadRoutineTemplates = (): RoutineTemplate[] => {
+ codex/add-sleep-reminder-features-44beg3
+  const storage = getStorage();
+  if (!storage) {
+    return defaultRoutineTemplates;
+  }
+  try {
+    const stored = storage.getItem(ROUTINE_TEMPLATES_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as RoutineTemplate[];
+      if (Array.isArray(parsed) && parsed.length && parsed.every((item) => isValidTemplate(item))) {
+        return parsed;
+
   const storage = safeLocalStorage();
   if (!storage) {
     return defaultRoutineTemplates;
@@ -345,10 +387,18 @@ export const loadRoutineTemplates = (): RoutineTemplate[] => {
       const parsed = JSON.parse(stored) as unknown;
       if (Array.isArray(parsed) && parsed.length > 0 && parsed.every((item) => isValidTemplate(item))) {
         return parsed as RoutineTemplate[];
+ main
       }
     }
   } catch (error) {
     console.error('Impossible de lire les routines enregistrées', error);
+ codex/add-sleep-reminder-features-44beg3
+    storage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
+    return defaultRoutineTemplates;
+  }
+
+  storage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(defaultRoutineTemplates));
+
   }
 
   // Ensure defaults persist (best-effort)
@@ -358,10 +408,23 @@ export const loadRoutineTemplates = (): RoutineTemplate[] => {
     console.error('Impossible de sauvegarder les templates par défaut', e);
   }
 
+ main
   return defaultRoutineTemplates;
 };
 
 export const saveRoutineTemplates = (templates: RoutineTemplate[]) => {
+ codex/add-sleep-reminder-features-44beg3
+  const storage = getStorage();
+  if (!storage) return;
+  storage.setItem(ROUTINE_TEMPLATES_KEY, JSON.stringify(templates));
+};
+
+export const loadActiveRoutine = (): ActiveRoutineStorage | null => {
+  const storage = getStorage();
+  if (!storage) {
+    return null;
+  }
+
   const storage = safeLocalStorage();
   if (!storage) return;
   try {
@@ -374,6 +437,7 @@ export const saveRoutineTemplates = (templates: RoutineTemplate[]) => {
 export const loadActiveRoutine = (): ActiveRoutineStorage | null => {
   const storage = safeLocalStorage();
   if (!storage) return null;
+ main
   try {
     const stored = storage.getItem(ACTIVE_ROUTINE_KEY);
     if (!stored) return null;
@@ -385,6 +449,22 @@ export const loadActiveRoutine = (): ActiveRoutineStorage | null => {
 };
 
 export const saveActiveRoutine = (routine: ActiveRoutineStorage | null) => {
+ codex/add-sleep-reminder-features-44beg3
+  const storage = getStorage();
+  if (!storage) return;
+  if (!routine) {
+    storage.removeItem(ACTIVE_ROUTINE_KEY);
+    return;
+  }
+  storage.setItem(ACTIVE_ROUTINE_KEY, JSON.stringify(routine));
+};
+
+export const loadCompletedRoutines = (): CompletedRoutineEntry[] => {
+  const storage = getStorage();
+  if (!storage) {
+    return [];
+  }
+
   const storage = safeLocalStorage();
   if (!storage) return;
   try {
@@ -401,6 +481,7 @@ export const saveActiveRoutine = (routine: ActiveRoutineStorage | null) => {
 export const loadCompletedRoutines = (): CompletedRoutineEntry[] => {
   const storage = safeLocalStorage();
   if (!storage) return [];
+ main
   try {
     const stored = storage.getItem(COMPLETED_ROUTINES_KEY);
     if (!stored) return [];
@@ -414,6 +495,11 @@ export const loadCompletedRoutines = (): CompletedRoutineEntry[] => {
 };
 
 export const saveCompletedRoutines = (entries: CompletedRoutineEntry[]) => {
+ codex/add-sleep-reminder-features-44beg3
+  const storage = getStorage();
+  if (!storage) return;
+  storage.setItem(COMPLETED_ROUTINES_KEY, JSON.stringify(entries));
+
   const storage = safeLocalStorage();
   if (!storage) return;
   try {
@@ -421,4 +507,5 @@ export const saveCompletedRoutines = (entries: CompletedRoutineEntry[]) => {
   } catch (err) {
     console.error('Impossible de sauvegarder les routines terminées', err);
   }
+ main
 };
