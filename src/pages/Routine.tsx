@@ -1,237 +1,357 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Play, Pause, Square, CheckCircle, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { getRoutineSteps, addSleepLog } from '@/utils/storage';
-import { useToast } from '@/hooks/use-toast';
+// src/pages/Routines.tsx
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ActiveRoutineStorage,
+  CompletedRoutineEntry,
+  RoutineTemplate,
+  defaultRoutineTemplates,
+  loadActiveRoutine,
+  loadCompletedRoutines,
+  loadRoutineTemplates,
+  saveActiveRoutine,
+  saveCompletedRoutines,
+} from '@/utils/routinesStorage';
+import { RoutineCard } from '@/components/routines/RoutineCard';
+import { RoutineModal } from '@/components/routines/RoutineModal';
+import { RoutineTimer } from '@/components/routines/RoutineTimer';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
-interface RoutineStep {
-  id: string;
-  name: string;
-  duration: number; // in seconds
-  icon: string;
-  description: string;
-}
+const ROUTINE_DURATION_FALLBACK = 600; // 10 minutes fallback
 
-export const Routine = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [steps] = useState<RoutineStep[]>(getRoutineSteps());
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(0);
-  const [totalElapsed, setTotalElapsed] = useState(0);
-  const [routineStartTime, setRoutineStartTime] = useState<Date | null>(null);
-
-  const currentStep = steps[currentStepIndex];
-  const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
-  const stepProgress = currentStep ? ((currentStep.duration - timeRemaining) / currentStep.duration) * 100 : 0;
-  const overallProgress = (totalElapsed / totalDuration) * 100;
-
-  useEffect(() => {
-    if (currentStep && timeRemaining === 0) {
-      setTimeRemaining(currentStep.duration);
-    }
-  }, [currentStepIndex, currentStep]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (isPlaying && timeRemaining > 0) {
-      interval = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            // Step completed
-            if (currentStepIndex < steps.length - 1) {
-              setCurrentStepIndex(prev => prev + 1);
-              return steps[currentStepIndex + 1].duration;
-            } else {
-              // Routine completed
-              handleRoutineComplete();
-              return 0;
-            }
-          }
-          return prev - 1;
-        });
-        setTotalElapsed(prev => prev + 1);
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isPlaying, timeRemaining, currentStepIndex, steps]);
-
-  const startRoutine = () => {
-    if (!routineStartTime) {
-      setRoutineStartTime(new Date());
-      setTimeRemaining(currentStep.duration);
-    }
-    setIsPlaying(true);
-  };
-
-  const pauseRoutine = () => {
-    setIsPlaying(false);
-  };
-
-  const stopRoutine = () => {
-    setIsPlaying(false);
-    setCurrentStepIndex(0);
-    setTimeRemaining(0);
-    setTotalElapsed(0);
-    setRoutineStartTime(null);
-  };
-
-  const handleRoutineComplete = () => {
-    setIsPlaying(false);
-    
-    // Log the completed routine
-    const today = new Date().toISOString().split('T')[0];
-    addSleepLog({
-      date: today,
-      routine_done: true,
-      routine_duration: totalElapsed,
-    });
-
-    // Show success message
-    toast({
-      title: "Bravo — routine terminée 🎉",
-      description: "Votre routine du soir est terminée ! Doux rêves.",
-    });
-
-    // Navigate back to home after a brief delay
-    setTimeout(() => {
-      navigate('/');
-    }, 2000);
-  };
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  if (!currentStep) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="text-center">
-          <CheckCircle className="h-16 w-16 mx-auto mb-4 text-primary animate-pulse-glow" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Routine terminée !</h1>
-          <p className="text-muted-foreground mb-6">Bravo ! Votre esprit et votre corps sont prêts pour la nuit.</p>
-          <Link to="/">
-            <Button variant="pill">Retour à l’accueil</Button>
-          </Link>
-        </div>
-      </div>
-    );
+const computeRemaining = (routine: ActiveRoutineStorage) => {
+  // If paused, use stored remainingSec (or duration)
+  if (routine.paused) {
+    return Math.max(0, Math.round(routine.remainingSec ?? routine.durationSec));
   }
+  // If there's an end timestamp, use it
+  if (routine.endAt) {
+    const remaining = Math.ceil((routine.endAt - Date.now()) / 1000);
+    return remaining > 0 ? remaining : 0;
+  }
+  // Otherwise default to durationSec
+  return Math.max(0, routine.durationSec ?? 0);
+};
+
+const notifyActiveRoutineChange = (hasActive: boolean) => {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('routine:active-change', { detail: { hasActive } }));
+};
+
+export const Routines: React.FC = () => {
+  const [templates, setTemplates] = useState<RoutineTemplate[]>(defaultRoutineTemplates);
+  const [selectedTemplate, setSelectedTemplate] = useState<RoutineTemplate | null>(null);
+  const [activeRoutine, setActiveRoutine] = useState<ActiveRoutineStorage | null>(null);
+
+  // initial remaining: pick first known duration or fallback
+  const initialDuration =
+    defaultRoutineTemplates[0]?.durations?.[0] ??
+    defaultRoutineTemplates[0]?.durationSec ??
+    ROUTINE_DURATION_FALLBACK;
+
+  const [remainingSec, setRemainingSec] = useState<number>(initialDuration);
+  const [completedRoutines, setCompletedRoutines] = useState<CompletedRoutineEntry[]>([]);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [showStopDialog, setShowStopDialog] = useState(false);
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+
+  const activeTemplate = useMemo(() => {
+    if (!activeRoutine) return null;
+    return templates.find((t) => t.id === activeRoutine.id) ?? null;
+  }, [activeRoutine, templates]);
+
+  const hydrateFromStorage = useCallback(() => {
+    try {
+      const storedTemplates = loadRoutineTemplates();
+      setTemplates(storedTemplates);
+    } catch (e) {
+      setTemplates(defaultRoutineTemplates);
+    }
+
+    try {
+      const storedCompleted = loadCompletedRoutines();
+      setCompletedRoutines(storedCompleted);
+    } catch (e) {
+      setCompletedRoutines([]);
+    }
+
+    try {
+      const storedActive = loadActiveRoutine();
+      if (storedActive) {
+        const remaining = computeRemaining(storedActive);
+        if (remaining <= 0) {
+          // finished while away
+          // mark as paused/finished and show completion dialog
+          const normalized = { ...storedActive, paused: true, remainingSec: 0, endAt: undefined };
+          setActiveRoutine(normalized);
+          setRemainingSec(0);
+          setShowCompletionDialog(true);
+          // activeRoutine no longer considered active (we will ask user to mark complete)
+          notifyActiveRoutineChange(false);
+          // also clear persisted active to avoid auto-re-trigger next load
+          saveActiveRoutine(null);
+        } else {
+          setActiveRoutine(storedActive);
+          setRemainingSec(remaining);
+          notifyActiveRoutineChange(true);
+        }
+      }
+    } catch (e) {
+      // nothing
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    hydrateFromStorage();
+    // listen for external changes to storage (optional)
+    const onStorage = () => hydrateFromStorage();
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [hydrateFromStorage]);
+
+  const openStartModal = (template: RoutineTemplate) => {
+    setSelectedTemplate(template);
+    setShowStartModal(true);
+  };
+
+  // startRoutine accepts optional duration (in seconds)
+  const startRoutine = useCallback((template: RoutineTemplate, durationSec?: number) => {
+    const duration = durationSec ?? template.durations?.[0] ?? ROUTINE_DURATION_FALLBACK;
+    const endAt = Date.now() + duration * 1000;
+    const routine: ActiveRoutineStorage = {
+      id: template.id,
+      title: template.title,
+      durationSec: duration,
+      endAt,
+      paused: false,
+      startedAt: Date.now(),
+    };
+
+    saveActiveRoutine(routine);
+    setActiveRoutine(routine);
+    setRemainingSec(duration);
+    setShowStartModal(false);
+    setShowCompletionDialog(false);
+    setShowStopDialog(false);
+    notifyActiveRoutineChange(true);
+  }, []);
+
+  const pauseRoutine = useCallback(() => {
+    if (!activeRoutine) return;
+    const currentRemaining = computeRemaining(activeRoutine);
+    const updated: ActiveRoutineStorage = {
+      ...activeRoutine,
+      paused: true,
+      remainingSec: currentRemaining,
+      endAt: undefined,
+    };
+    setActiveRoutine(updated);
+    setRemainingSec(currentRemaining);
+    saveActiveRoutine(updated);
+    // still considered "active" but paused
+    notifyActiveRoutineChange(true);
+  }, [activeRoutine]);
+
+  const resumeRoutine = useCallback(() => {
+    if (!activeRoutine) return;
+    const remaining = Math.max(0, activeRoutine.remainingSec ?? remainingSec);
+    const endAt = Date.now() + remaining * 1000;
+    const updated: ActiveRoutineStorage = {
+      ...activeRoutine,
+      paused: false,
+      endAt,
+      remainingSec: undefined,
+    };
+    setActiveRoutine(updated);
+    saveActiveRoutine(updated);
+    notifyActiveRoutineChange(true);
+  }, [activeRoutine, remainingSec]);
+
+  const requestStop = () => {
+    pauseRoutine();
+    setShowStopDialog(true);
+  };
+
+  const abandonRoutine = () => {
+    setShowStopDialog(false);
+    setActiveRoutine(null);
+    // reset remaining to selected template's first duration or first template or fallback
+    const defaultSec = selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION_FALLBACK;
+    setRemainingSec(defaultSec);
+    saveActiveRoutine(null);
+    notifyActiveRoutineChange(false);
+  };
+
+  const handleRoutineFinished = useCallback(() => {
+    if (!activeRoutine) return;
+    setRemainingSec(0);
+    const updated: ActiveRoutineStorage = {
+      ...activeRoutine,
+      paused: true,
+      remainingSec: 0,
+      endAt: undefined,
+    };
+    setActiveRoutine(updated);
+    // clear persisted active (we will move to completion flow)
+    saveActiveRoutine(null);
+    setShowCompletionDialog(true);
+    notifyActiveRoutineChange(false);
+  }, [activeRoutine]);
+
+  // tick loop
+  useEffect(() => {
+    if (!activeRoutine || activeRoutine.paused) return;
+    if (!activeRoutine.endAt) return;
+
+    const tick = () => {
+      const remaining = computeRemaining(activeRoutine);
+      setRemainingSec(remaining);
+      if (remaining <= 0) {
+        handleRoutineFinished();
+      }
+    };
+
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    return () => window.clearInterval(interval);
+  }, [activeRoutine, handleRoutineFinished]);
+
+  const confirmStopAsComplete = () => {
+    setShowStopDialog(false);
+    setRemainingSec(0);
+    if (activeRoutine) {
+      const updated: ActiveRoutineStorage = {
+        ...activeRoutine,
+        paused: true,
+        remainingSec: 0,
+        endAt: undefined,
+      };
+      setActiveRoutine(updated);
+    }
+    saveActiveRoutine(null);
+    setShowCompletionDialog(true);
+    notifyActiveRoutineChange(false);
+  };
+
+  const recordCompletion = useCallback(() => {
+    if (!activeRoutine) return;
+    const entry: CompletedRoutineEntry = {
+      id: activeRoutine.id,
+      title: activeRoutine.title,
+      completedAt: new Date().toISOString(),
+    };
+    const updated = [...completedRoutines, entry];
+    setCompletedRoutines(updated);
+    saveCompletedRoutines(updated);
+    setShowCompletionDialog(false);
+    setShowStopDialog(false);
+    setActiveRoutine(null);
+
+    // reset remaining to sensible default
+    const defaultSec = selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION_FALLBACK;
+    setRemainingSec(defaultSec);
+
+    notifyActiveRoutineChange(false);
+  }, [activeRoutine, completedRoutines, selectedTemplate, templates]);
+
+  const restartRoutine = () => {
+    const templateToRestart = activeTemplate ?? selectedTemplate;
+    setShowCompletionDialog(false);
+    if (templateToRestart) {
+      const prevDuration = activeRoutine?.durationSec ?? templateToRestart.durations?.[0] ?? ROUTINE_DURATION_FALLBACK;
+      startRoutine(templateToRestart, prevDuration);
+    } else if (selectedTemplate) {
+      startRoutine(selectedTemplate, selectedTemplate.durations?.[0]);
+    } else {
+      setActiveRoutine(null);
+      setRemainingSec(ROUTINE_DURATION_FALLBACK);
+    }
+  };
+
+  const formattedHistory = useMemo(
+    () =>
+      completedRoutines
+        .slice()
+        .reverse()
+        .map((entry) => ({
+          ...entry,
+          formattedDate: format(new Date(entry.completedAt), "d MMMM yyyy 'à' HH:mm", {
+            locale: fr,
+          }),
+        })),
+    [completedRoutines]
+  );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-border">
-        <Link to="/">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <h1 className="text-lg font-semibold text-foreground">Routine du soir</h1>
-        <Button variant="ghost" onClick={stopRoutine} className="text-destructive">
-          <Square className="h-4 w-4 mr-2" />
-          Arrêter
-        </Button>
-      </div>
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 bg-background px-4 py-10 sm:px-6 lg:px-12">
+      <header className="space-y-2">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary/80">Sleep Reminder</p>
+        <h1 className="text-3xl font-bold text-foreground">Routines du soir</h1>
+        <p className="text-sm text-muted-foreground">
+          Choisis une routine guidée, personnalise sa durée et laisse-toi guider étape par étape. Toutes les actions
+          sont sauvegardées sur ton appareil.
+        </p>
+      </header>
 
-      <div className="p-6 space-y-6">
-        {/* Overall Progress */}
-        <Card className="p-6 border-primary/20 bg-card/50">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-foreground">Progression totale</span>
-            <span className="text-sm text-muted-foreground">
-              Étape {currentStepIndex + 1} sur {steps.length}
-            </span>
-          </div>
-          <Progress value={overallProgress} className="h-2 mb-2" />
-          <div className="text-xs text-muted-foreground text-center">
-            {formatTime(totalElapsed)} / {formatTime(totalDuration)}
-          </div>
-        </Card>
+      <section className="grid gap-5 md:grid-cols-2">
+        {templates.map((template) => (
+          <RoutineCard key={template.id} template={template} onStart={openStartModal} />
+        ))}
+      </section>
 
-        {/* Current Step */}
-        <Card className="p-8 text-center border-primary/20 bg-gradient-to-b from-card/50 to-card/30">
-          <div className="text-6xl mb-4 animate-float">{currentStep.icon}</div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">{currentStep.name}</h2>
-          <p className="text-muted-foreground mb-6">{currentStep.description}</p>
-          
-          {/* Step Timer */}
-          <div className="mb-6">
-            <div className="text-4xl font-mono font-bold text-primary mb-2">
-              {formatTime(timeRemaining)}
-            </div>
-            <Progress value={stepProgress} className="h-3 mb-2" />
-          </div>
-
-          {/* Controls */}
-          <div className="flex justify-center space-x-4">
-            {!isPlaying ? (
-              <Button 
-                variant="hero" 
-                size="lg"
-                onClick={startRoutine}
-                className="px-8"
+      <section className="rounded-3xl border border-border/60 bg-muted/30 p-5">
+        <h2 className="text-lg font-semibold text-foreground">Historique rapide</h2>
+        {formattedHistory.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">Aucune routine complétée pour le moment. Lance-toi ce soir !</p>
+        ) : (
+          <ul className="mt-3 space-y-3 text-sm">
+            {formattedHistory.slice(0, 5).map((entry) => (
+              <li
+                key={`${entry.id}-${entry.completedAt}`}
+                className={cn('rounded-2xl border border-primary/10 bg-background/80 px-4 py-3 shadow-sm', 'flex flex-col gap-1')}
               >
-                <Play className="h-5 w-5 mr-2" />
-                {routineStartTime ? 'Reprendre' : 'Démarrer'}
-              </Button>
-            ) : (
-              <Button 
-                variant="hero" 
-                size="lg"
-                onClick={pauseRoutine}
-                className="px-8"
-              >
-                <Pause className="h-5 w-5 mr-2" />
-                Pause
-              </Button>
-            )}
-          </div>
-        </Card>
+                <span className="font-medium text-foreground">{entry.title}</span>
+                <span className="text-xs text-muted-foreground">{entry.formattedDate}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
-        {/* Steps Overview */}
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-foreground">Étapes de la routine</h3>
-          {steps.map((step, index) => (
-            <Card 
-              key={step.id}
-              className={`p-4 border transition-all duration-300 ${
-                index === currentStepIndex
-                  ? 'border-primary bg-primary/5 shadow-sleep-glow'
-                  : index < currentStepIndex
-                  ? 'border-green-500/50 bg-green-500/5'
-                  : 'border-primary/20 bg-card/50'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <div className="text-2xl">{step.icon}</div>
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">{step.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {formatTime(step.duration)}
-                  </div>
-                </div>
-                {index < currentStepIndex && (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                )}
-                {index === currentStepIndex && isPlaying && (
-                  <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
+      <RoutineModal
+        open={showStartModal}
+        onOpenChange={setShowStartModal}
+        template={selectedTemplate ?? undefined}
+        onConfirm={(duration) => {
+          if (selectedTemplate) {
+            startRoutine(selectedTemplate, duration);
+          }
+        }}
+      />
+
+      {activeRoutine && activeTemplate && (
+        <RoutineTimer
+          routine={activeRoutine}
+          template={activeTemplate}
+          remainingSec={remainingSec}
+          isPaused={Boolean(activeRoutine.paused)}
+          onPause={pauseRoutine}
+          onResume={resumeRoutine}
+          onRequestStop={requestStop}
+          onStopDialogChange={setShowStopDialog}
+          onConfirmStopComplete={confirmStopAsComplete}
+          onConfirmStopAbandon={abandonRoutine}
+          showStopDialog={showStopDialog}
+          showCompletionDialog={showCompletionDialog}
+          onCompletionDialogChange={setShowCompletionDialog}
+          onConfirmCompleted={recordCompletion}
+          onRestart={restartRoutine}
+        />
+      )}
     </div>
   );
 };
 
-export default Routine;
+export default Routines;
