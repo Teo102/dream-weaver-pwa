@@ -1,4 +1,5 @@
-// src/pages/Routines.tsx
+@'
+/* src/pages/Routines.tsx */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActiveRoutineStorage,
@@ -21,16 +22,13 @@ import { cn } from '@/lib/utils';
 const ROUTINE_DURATION_FALLBACK = 600; // 10 minutes fallback
 
 const computeRemaining = (routine: ActiveRoutineStorage) => {
-  // If paused, use stored remainingSec (or duration)
   if (routine.paused) {
     return Math.max(0, Math.round(routine.remainingSec ?? routine.durationSec));
   }
-  // If there's an end timestamp, use it
   if (routine.endAt) {
     const remaining = Math.ceil((routine.endAt - Date.now()) / 1000);
     return remaining > 0 ? remaining : 0;
   }
-  // Otherwise default to durationSec
   return Math.max(0, routine.durationSec ?? 0);
 };
 
@@ -44,7 +42,6 @@ export const Routines: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<RoutineTemplate | null>(null);
   const [activeRoutine, setActiveRoutine] = useState<ActiveRoutineStorage | null>(null);
 
-  // initial remaining: pick first known duration or fallback
   const initialDuration =
     defaultRoutineTemplates[0]?.durations?.[0] ??
     defaultRoutineTemplates[0]?.durationSec ??
@@ -65,14 +62,14 @@ export const Routines: React.FC = () => {
     try {
       const storedTemplates = loadRoutineTemplates();
       setTemplates(storedTemplates);
-    } catch (e) {
+    } catch {
       setTemplates(defaultRoutineTemplates);
     }
 
     try {
       const storedCompleted = loadCompletedRoutines();
       setCompletedRoutines(storedCompleted);
-    } catch (e) {
+    } catch {
       setCompletedRoutines([]);
     }
 
@@ -81,15 +78,11 @@ export const Routines: React.FC = () => {
       if (storedActive) {
         const remaining = computeRemaining(storedActive);
         if (remaining <= 0) {
-          // finished while away
-          // mark as paused/finished and show completion dialog
           const normalized = { ...storedActive, paused: true, remainingSec: 0, endAt: undefined };
           setActiveRoutine(normalized);
           setRemainingSec(0);
           setShowCompletionDialog(true);
-          // activeRoutine no longer considered active (we will ask user to mark complete)
           notifyActiveRoutineChange(false);
-          // also clear persisted active to avoid auto-re-trigger next load
           saveActiveRoutine(null);
         } else {
           setActiveRoutine(storedActive);
@@ -97,15 +90,14 @@ export const Routines: React.FC = () => {
           notifyActiveRoutineChange(true);
         }
       }
-    } catch (e) {
-      // nothing
+    } catch {
+      // ignore
     }
   }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     hydrateFromStorage();
-    // listen for external changes to storage (optional)
     const onStorage = () => hydrateFromStorage();
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
@@ -116,7 +108,6 @@ export const Routines: React.FC = () => {
     setShowStartModal(true);
   };
 
-  // startRoutine accepts optional duration (in seconds)
   const startRoutine = useCallback((template: RoutineTemplate, durationSec?: number) => {
     const duration = durationSec ?? template.durations?.[0] ?? ROUTINE_DURATION_FALLBACK;
     const endAt = Date.now() + duration * 1000;
@@ -150,7 +141,6 @@ export const Routines: React.FC = () => {
     setActiveRoutine(updated);
     setRemainingSec(currentRemaining);
     saveActiveRoutine(updated);
-    // still considered "active" but paused
     notifyActiveRoutineChange(true);
   }, [activeRoutine]);
 
@@ -177,7 +167,6 @@ export const Routines: React.FC = () => {
   const abandonRoutine = () => {
     setShowStopDialog(false);
     setActiveRoutine(null);
-    // reset remaining to selected template's first duration or first template or fallback
     const defaultSec = selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION_FALLBACK;
     setRemainingSec(defaultSec);
     saveActiveRoutine(null);
@@ -194,13 +183,11 @@ export const Routines: React.FC = () => {
       endAt: undefined,
     };
     setActiveRoutine(updated);
-    // clear persisted active (we will move to completion flow)
     saveActiveRoutine(null);
     setShowCompletionDialog(true);
     notifyActiveRoutineChange(false);
   }, [activeRoutine]);
 
-  // tick loop
   useEffect(() => {
     if (!activeRoutine || activeRoutine.paused) return;
     if (!activeRoutine.endAt) return;
@@ -248,11 +235,8 @@ export const Routines: React.FC = () => {
     setShowCompletionDialog(false);
     setShowStopDialog(false);
     setActiveRoutine(null);
-
-    // reset remaining to sensible default
     const defaultSec = selectedTemplate?.durations?.[0] ?? templates[0]?.durations?.[0] ?? ROUTINE_DURATION_FALLBACK;
     setRemainingSec(defaultSec);
-
     notifyActiveRoutineChange(false);
   }, [activeRoutine, completedRoutines, selectedTemplate, templates]);
 
@@ -355,3 +339,4 @@ export const Routines: React.FC = () => {
 };
 
 export default Routines;
+'@ | Set-Content -Path .\src\pages\Routines.tsx -Encoding utf8
