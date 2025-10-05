@@ -1,5 +1,4 @@
-@'
-/* src/pages/Routines.tsx */
+// src/pages/Routines.tsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActiveRoutineStorage,
@@ -339,4 +338,3 @@ export const Routines: React.FC = () => {
 };
 
 export default Routines;
-'@ | Set-Content -Path .\src\pages\Routines.tsx -Encoding utf8
