@@ -48,7 +48,7 @@ const articles: Article[] = [
       { to: '/routines', label: 'Voir les Routines', variant: 'pill' },
       { to: '/calculator', label: 'Ouvrir le Calculateur', variant: 'outline' },
     ],
-    summary: 'Le sommeil, c'est de la récupération planifiée — traite-le comme une habitude précieuse.',
+    summary: 'Le sommeil, c\'est de la récupération planifiée — traite-le comme une habitude précieuse.',
   },
   {
     id: 'article-2',
@@ -60,12 +60,12 @@ const articles: Article[] = [
         On enchaîne généralement 4 à 6 cycles par nuit.
       </>,
       <>
-        Pourquoi c'est utile : <strong>la qualité compte autant que la quantité</strong>. Respecter les cycles (et la régularité) aide à se réveiller plus frais
+        Pourquoi c\'est utile : <strong>la qualité compte autant que la quantité</strong>. Respecter les cycles (et la régularité) aide à se réveiller plus frais
         et à tirer le meilleur de la consolidation mémoire et de la récupération physique.
       </>,
     ],
     ctas: [{ to: '/calculator', label: 'Utiliser le Calculateur', variant: 'pill' }],
-    summary: 'Planifier autour des cycles augmente les chances d'un réveil plus agréable.',
+    summary: 'Planifier autour des cycles augmente les chances d\'un réveil plus agréable.',
   },
   {
     id: 'article-3',

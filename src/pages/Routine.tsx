@@ -43,7 +43,6 @@ export const Routines: React.FC = () => {
 
   const initialDuration =
     defaultRoutineTemplates[0]?.durations?.[0] ??
-    defaultRoutineTemplates[0]?.durationSec ??
     ROUTINE_DURATION_FALLBACK;
 
   const [remainingSec, setRemainingSec] = useState<number>(initialDuration);

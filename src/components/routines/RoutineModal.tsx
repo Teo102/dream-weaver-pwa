@@ -50,8 +50,8 @@ export const RoutineModal = ({ open, onOpenChange, template, onConfirm }: Routin
 
           <AlertDialogDescription className="text-muted-foreground">
             {hasDurationOptions
-              ? 'Choisis la durée qui te convient : tu pourras mettre le minuteur en pause ou l'arrêter quand tu veux.'
-              : "Cette routine dure 10 minutes. Tu pourras la mettre en pause ou l'arrêter."}
+              ? 'Choisis la durée qui te convient : tu pourras mettre le minuteur en pause ou l\'arrêter quand tu veux.'
+              : "Cette routine dure 10 minutes. Tu pourras la mettre en pause ou l\'arrêter."}
           </AlertDialogDescription>
 
           {template && (

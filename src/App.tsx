@@ -5,12 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { Landing } from "./pages/Landing";
-import { Home } from "./pages/Home";
+import Home from "./pages/Home";
 import { Calculator } from "./pages/Calculator";
-import { Routine } from "./pages/Routine";
-import { Routines } from "./pages/Routines";
+import Routines from "./pages/Routines";
 import { Journal } from "./pages/Journal";
-import { Achievements } from "./pages/Achievements";
+import Achievements from "./pages/Achievements";
 import { Onboarding } from "./pages/Onboarding";
 import { ComprendreSommeil } from "./pages/ComprendreSommeil";
 import NotFound from "./pages/NotFound";
@@ -28,7 +27,7 @@ const App = () => (
           <Route path="/app" element={<Layout><Home /></Layout>} />
           <Route path="/onboarding" element={<Layout><Onboarding /></Layout>} />
           <Route path="/calculator" element={<Layout><Calculator /></Layout>} />
-          <Route path="/routine" element={<Layout><Routine /></Layout>} />
+          
           <Route path="/routines" element={<Layout><Routines /></Layout>} />
           <Route path="/journal" element={<Layout><Journal /></Layout>} />
           <Route path="/achievements" element={<Layout><Achievements /></Layout>} />
