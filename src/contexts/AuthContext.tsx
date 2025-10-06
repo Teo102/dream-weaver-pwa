@@ -93,7 +93,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/app`,
+        }
+      });
       const u = data && (data as any).user ? { id: (data as any).user.id, email: (data as any).user.email } : null;
       if (u) {
         // tentative non-bloquante de créer un profil
