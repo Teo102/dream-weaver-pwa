@@ -10,41 +10,16 @@ import { useToast } from '@/hooks/use-toast';
 import heroImage from '@/assets/hero-sleep.jpg';
 
 export const Landing = () => {
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
-  const [email, setEmail] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = () => {
-    if (email.trim()) {
-      localStorage.setItem('user_logged_in', 'true');
-      localStorage.setItem('user_email', email);
-      setShowLoginModal(false);
-      toast({
-        title: "Connexion réussie ✅",
-        description: "Bienvenue dans Sleep Reminder",
-      });
-    }
-  };
-
   const handleFreeTrial = () => {
-    localStorage.setItem('is_premium', 'true');
-    setShowPaywallModal(false);
-    toast({
-      title: "Essai activé 🎉",
-      description: "Profitez de 7 jours d'accès premium",
-    });
-    navigate('/calculator');
+    navigate('/auth');
   };
 
   const handleCalculatorAccess = () => {
-    const isLoggedIn = localStorage.getItem('user_logged_in');
-    if (isLoggedIn) {
-      navigate('/calculator');
-    } else {
-      setShowLoginModal(true);
-    }
+    navigate('/auth');
   };
 
   const features = [
@@ -86,7 +61,7 @@ export const Landing = () => {
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={() => setShowLoginModal(true)}
+            onClick={() => navigate('/auth')}
             className="text-muted-foreground hover:text-foreground"
           >
             Se connecter
@@ -214,39 +189,6 @@ export const Landing = () => {
           </div>
         </div>
       </footer>
-
-      {/* Login Modal */}
-      <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
-        <DialogContent className="sm:max-w-md bg-card border-primary/20">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">Se connecter</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              type="email"
-              placeholder="votre@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-background border-primary/20"
-            />
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowLoginModal(false)}
-                className="flex-1"
-              >
-                Annuler
-              </Button>
-              <Button 
-                onClick={handleLogin}
-                className="flex-1 bg-primary hover:bg-primary-dark"
-              >
-                Confirmer
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Paywall Modal */}
       <Dialog open={showPaywallModal} onOpenChange={setShowPaywallModal}>

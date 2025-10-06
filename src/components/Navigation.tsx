@@ -4,9 +4,8 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Accueil' },
+  { href: '/app', icon: Home, label: 'Accueil' },
   { href: '/calculator', icon: Calculator, label: 'Calculateur' },
-  { href: '/comprendre-sommeil', icon: Sparkles, label: 'Comprendre le sommeil' },
   { href: '/routines', icon: Timer, label: 'Routines' },
   { href: '/journal', icon: BookOpen, label: 'Journal' },
   { href: '/achievements', icon: Trophy, label: 'Succès' },

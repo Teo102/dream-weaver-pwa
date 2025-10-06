@@ -5,7 +5,18 @@ import { Navigate } from 'react-router-dom';
 
 export const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading…</div>;
-  if (!user) return <Navigate to="/auth" replace />;
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Chargement...</div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
   return children;
 };
