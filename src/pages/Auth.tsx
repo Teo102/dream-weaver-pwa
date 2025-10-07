@@ -193,10 +193,18 @@ export default function AuthPage() {
             </button>
           </div>
           
-          <div>
-            <Link to="/" className="text-muted-foreground hover:text-foreground text-sm">
-              ← Retour à l'accueil
+          <div className="space-y-2">
+            <Link 
+              to="/app" 
+              className="inline-block px-6 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium transition-colors"
+            >
+              Continuer sans compte
             </Link>
+            <div>
+              <Link to="/" className="text-muted-foreground hover:text-foreground text-sm">
+                ← Retour à l'accueil
+              </Link>
+            </div>
           </div>
         </div>
       </div>

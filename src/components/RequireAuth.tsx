@@ -14,9 +14,10 @@ export const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ childr
     );
   }
   
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+  // Temporairement désactivé pour permettre l'accès sans authentification
+  // if (!user) {
+  //   return <Navigate to="/auth" replace />;
+  // }
   
   return children;
 };
