@@ -15,6 +15,7 @@ import { ComprendreSommeil } from "./pages/ComprendreSommeil";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/Auth";
 import { RequireAuth } from "./components/RequireAuth";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/comprendre-sommeil" element={<Layout><ComprendreSommeil /></Layout>} />
+        <Route path="/help" element={<Layout><Help /></Layout>} />
         
         <Route path="/app" element={<RequireAuth><Layout><Home /></Layout></RequireAuth>} />
         <Route path="/onboarding" element={<RequireAuth><Layout><Onboarding /></Layout></RequireAuth>} />
