@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Trophy, Moon, Star, ArrowRight, Brain } from 'lucide-react';
+import { Clock, Calendar, Trophy, Moon, Star, ArrowRight, Brain, BookOpen } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentStreak, getRecentLogs, type SleepLog } from '@/utils/storage';
 
@@ -108,25 +108,46 @@ const Home = () => {
           })}
         </div>
 
-        {/* Education Card */}
-        <Link to="/comprendre-sommeil">
-          <Card className="p-4 hover:shadow-sleep-glow transition-all duration-300 border-primary/20 bg-card/50 hover-scale">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Brain className="h-6 w-6 text-primary" />
+        {/* Education Cards */}
+        <div className="grid grid-cols-1 gap-3">
+          <Link to="/help">
+            <Card className="p-4 hover:shadow-sleep-glow transition-all duration-300 border-primary/20 bg-card/50 hover-scale">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">
+                    Tutoriel complet
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Guide pas-à-pas de toutes les fonctionnalités
+                  </p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground">
-                  Comprendre le sommeil
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Apprenez les secrets d'un bon sommeil
-                </p>
+            </Card>
+          </Link>
+
+          <Link to="/comprendre-sommeil">
+            <Card className="p-4 hover:shadow-sleep-glow transition-all duration-300 border-primary/20 bg-card/50 hover-scale">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Brain className="h-6 w-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">
+                    Comprendre le sommeil
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Apprenez les secrets d'un bon sommeil
+                  </p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </Card>
-        </Link>
+            </Card>
+          </Link>
+        </div>
 
         {/* Recent Activity */}
         {recentLogs.length > 0 && (
