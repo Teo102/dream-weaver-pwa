@@ -736,7 +736,7 @@ npx tsc --noEmit     # Type-check`}</pre>
                     <li>Description du problème</li>
                     <li>Étapes pour reproduire</li>
                     <li>Navigateur et version</li>
-                    <li>Logs console (DevTools > Console)</li>
+                    <li>Logs console (DevTools {'>'} Console)</li>
                     <li>Captures d'écran</li>
                   </ul>
 
