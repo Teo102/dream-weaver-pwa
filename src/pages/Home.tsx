@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Trophy, Moon, Star, ArrowRight, Brain, BookOpen } from 'lucide-react';
+import { Clock, Calendar, Trophy, Moon, Star, ArrowRight, Brain, BookOpen, Database, Sparkles, Send } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentStreak, getRecentLogs, type SleepLog } from '@/utils/storage';
 
@@ -61,6 +61,37 @@ const Home = () => {
     }
   ];
 
+  const healthDataPoints = [
+    { label: 'Sommeil total', value: '7h42', trend: '+18 min vs semaine passée' },
+    { label: 'FC nocturne moyenne', value: '57 bpm', trend: 'Stable sur 30 jours' },
+    { label: 'Récupération estimée', value: '84%', trend: 'Excellent niveau ce mois-ci' },
+    { label: 'Régularité du coucher', value: '91%', trend: 'Objectif: > 90%' }
+  ];
+
+  const cloudPromptCadence = [
+    {
+      frequency: 'Quotidien',
+      title: 'Synthèse micro-ajustements',
+      prompt:
+        'Analyse mes dernières 24h (sommeil, fréquence cardiaque nocturne, activité, stress) et propose 3 ajustements concrets pour ce soir ainsi qu\'un résumé visuel ultra-court.',
+      cta: 'Envoyer le prompt du jour'
+    },
+    {
+      frequency: 'Hebdomadaire',
+      title: 'Bilan tendance & risques',
+      prompt:
+        'Croise mes données santé iPhone des 7 derniers jours et détecte tendances, points de vigilance, leviers prioritaires et plan d\'action de la semaine.',
+      cta: 'Envoyer le prompt de la semaine'
+    },
+    {
+      frequency: 'Mensuel',
+      title: 'Analyse complète stratégique',
+      prompt:
+        'Fais une analyse complète du mois: sommeil, récupération, variabilité, routines, qualité perçue. Génère un rapport visuel détaillé, des objectifs personnalisés et un plan mensuel.',
+      cta: 'Envoyer le prompt du mois'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto space-y-6 p-6 pb-24">
@@ -83,6 +114,57 @@ const Home = () => {
             <div className="text-sm text-muted-foreground">Jours consécutifs</div>
           </Card>
         )}
+
+        <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/10 via-card to-accent/20 shadow-sleep-glow">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-primary font-semibold">Cloud IA Santé</p>
+              <h2 className="text-lg font-bold text-foreground">Cockpit données iPhone + IA</h2>
+            </div>
+            <Sparkles className="h-5 w-5 text-primary mt-1" />
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Centralisez un maximum de données santé et générez automatiquement visuels, conseils et analyses complètes avec une orchestration quotidienne, hebdomadaire et mensuelle.
+          </p>
+
+          <div className="grid grid-cols-2 gap-3">
+            {healthDataPoints.map((item) => (
+              <div key={item.label} className="rounded-xl border border-primary/20 bg-background/70 p-3 space-y-1">
+                <p className="text-[11px] text-muted-foreground">{item.label}</p>
+                <p className="text-lg font-bold text-foreground">{item.value}</p>
+                <p className="text-[11px] text-primary">{item.trend}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">Prompts automatiques à envoyer au Cloud IA</h2>
+          </div>
+
+          {cloudPromptCadence.map((cadence) => (
+            <Card key={cadence.frequency} className="p-4 border-primary/20 bg-card/60 backdrop-blur-sm">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Badge variant="secondary" className="bg-primary/15 text-primary border border-primary/20">
+                    {cadence.frequency}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">iPhone Health + IA Cloud</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{cadence.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{cadence.prompt}</p>
+                </div>
+                <Button variant="outline" className="w-full justify-between border-primary/30 hover:bg-primary/10">
+                  <span>{cadence.cta}</span>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">
